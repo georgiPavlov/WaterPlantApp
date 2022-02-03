@@ -12,8 +12,8 @@ import json
 
 class GetPlan(generics.ListAPIView):
     def get(self, request, *args, **kwargs):
-        plan = {"name": "plant1", "plan_type": "basic", "water_volume": "200ml"}
-
+        # plan = {"name": "plant1", "plan_type": "basic", "water_volume": 200}
+        plan = {"name": "plant1", "plan_type": "basic", "water_volume": 200, "moisture_threshold": 0.8, "check_interval": 1}
         return JsonResponse(plan, safe=False)
 
 
