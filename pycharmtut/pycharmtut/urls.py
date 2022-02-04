@@ -25,6 +25,7 @@ urlpatterns = [
     path('hello/', v.hello_view, name='home'),
     path('getPlan/', v.GetPlan.as_view(), name='home2'),
     path('postWater', v.PostWater.as_view(), name='home3'),
+    path('postStatus', v.PostWater.as_view(), name='home3'),
     path('postMoisture', v.PostMoisture.as_view(), name='home4'),
     path('postPlanExecution', v.PostMoisture.as_view(), name='home4'),
 ]
