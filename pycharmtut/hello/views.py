@@ -15,7 +15,7 @@ class GetPlan(generics.ListAPIView):
         #plan = {"name": "plant1", "plan_type": "moisture", "water_volume": 200, "moisture_threshold": 0.8,
               #  "check_interval": 1}
         plan = {"name": "plant1", "plan_type": "time_based", "water_volume": 200,
-                "water_times":[{"weekday": "Friday", "time_water": "10:30 PM"}]}
+                "water_times":[{"weekday": "Friday", "time_water": "07:31 PM"}]}
         return JsonResponse(plan, safe=False)
 
 
