@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class Hello2Config(AppConfig):
+class HelloConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'hello2'
+    name = 'gadget_communicator_pull'

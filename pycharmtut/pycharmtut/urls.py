@@ -16,13 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from hello import views as v
-
-from hello2 import views as one
+from gadget_communicator_pull import views as v
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('hello/', v.hello_view, name='home'),
+    path('gadget_communicator_pull/', v.hello_view, name='home'),
+    path('gadget_communicator_pull/', include('gadget_communicator_pull.urls')),
     path('getPlan/', v.GetPlan.as_view(), name='home2'),
     path('postWater', v.PostWater.as_view(), name='home3'),
     path('postStatus', v.PostWater.as_view(), name='home3'),
