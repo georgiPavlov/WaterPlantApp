@@ -1,5 +1,9 @@
-from django import forms
+from datetime import datetime
 
+from django import forms
+from django.forms import DateField
+
+from . import helper
 from .models import BasicPlan
 from .models import MoisturePlan
 from .models import TimePlan
@@ -24,10 +28,21 @@ class DeviceForm(forms.ModelForm):
 
 
 class BasicPlanForm(forms.ModelForm):
+    relation = forms.ModelChoiceField(queryset=Device.objects.all())
+
     def __init__(self, *args, **kwargs):
         super(BasicPlanForm, self).__init__(*args, **kwargs)
         self.fields['plan_type'].disabled = True
         self.fields['plan_type'].initial = WATER_PLAN_BASIC
+
+    def save(self, commit=True):
+        instance = super(BasicPlanForm, self).save(commit=False)
+        pub = self.cleaned_data['relation']
+        print(type(pub))
+        print(type(instance))
+        instance.device_relation = pub
+        instance.save(commit)
+        return instance
 
     class Meta:
         model = BasicPlan
@@ -54,14 +69,25 @@ class MoisturePlanForm(forms.ModelForm):
 
 
 class TimeForm(forms.ModelForm):
+    time_rel = forms.TimeField(widget=forms.TimeInput(format='%H:%M'))
+
+
     class Meta:
         model = WaterTime
-        fields = ['weekday', 'time_water']
+        fields = ['weekday', 'time_rel']
+
+    def save(self, commit=True):
+        instance = super(TimeForm, self).save(commit=False)
+        time_rel = self.cleaned_data['time_rel']
+
+        instance.time_water = str(time_rel)
+        instance.save(commit)
+        return instance
 
 
 class TimePlanForm(forms.ModelForm):
-    time_plan_relation = forms.ModelMultipleChoiceField(widget=forms.CheckboxSelectMultiple(),
-                                                        queryset=WaterTime.objects.all())
+    water_time_rel = forms.ModelChoiceField(queryset=WaterTime.objects.all())
+    relation_rel = forms.ModelChoiceField(queryset=Device.objects.all())
 
     def __init__(self, *args, **kwargs):
         super(TimePlanForm, self).__init__(*args, **kwargs)
@@ -70,7 +96,18 @@ class TimePlanForm(forms.ModelForm):
 
     class Meta:
         model = TimePlan
-        fields = ['time_plan_relation', ]
+        fields = ['relation_rel',
+                  'water_time_rel',
+                  'name',
+                  'plan_type',
+                  'water_volume',
+                  ]
 
-
-
+    def save(self, commit=True):
+        instance = super(TimePlanForm, self).save(commit=False)
+        device_rel = self.cleaned_data['relation_rel']
+        water_time_rel = self.cleaned_data['water_time_rel']
+        instance.device_relation = device_rel
+        instance.water_time_relation = water_time_rel
+        instance.save(commit)
+        return instance

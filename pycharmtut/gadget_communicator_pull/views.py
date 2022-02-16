@@ -9,7 +9,14 @@ from rest_framework import permissions
 import sys
 import json
 from .forms import DeviceForm
+from .forms import BasicPlanForm
+from .forms import TimeForm
+from .forms import TimePlanForm
+
 from .models import Device
+from .models import BasicPlan
+from .models import WaterTime
+from .models import TimePlan
 
 
 class GetPlan(generics.GenericAPIView):
@@ -157,6 +164,87 @@ class DeviceDeleteView(DeviceMixin, View):
             return redirect('/gadget_communicator_pull/list')
         return render(request, self.template_name, context)
 
+
+class AddPlan(View):
+    template_name = "courses/plan_create.html"
+    model = BasicPlan
+
+    def get(self, request, id=None, *args, **kwargs):
+        # GET method
+        form = BasicPlanForm
+        context = {"form": form}
+        return render(request, self.template_name, context)
+
+    def post(self, request, id=None, *args, **kwargs):
+        # POST method
+        form = BasicPlanForm(request.POST)
+        if form.is_valid():
+            form.save()
+            form = BasicPlanForm()
+            print("safe")
+        context = {"form": form}
+
+        return redirect('/gadget_communicator_pull/create')
+
+
+
+class ListPlan(View):
+    template_name = "courses/plan_list.html"
+
+    def get_queryset(self):
+        return BasicPlan.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        context = {'object_list': self.get_queryset()}
+        return render(request, self.template_name, context)
+
+
+class TimeCreate(View):
+    template_name = "courses/water_time_create.html"
+    model = WaterTime
+
+    def get(self, request, id=None, *args, **kwargs):
+        # GET method
+        form = TimeForm
+        context = {"form": form}
+        return render(request, self.template_name, context)
+
+    def post(self, request, id=None, *args, **kwargs):
+        # POST method
+        form = TimeForm(request.POST)
+        if form.is_valid():
+            print("safe1234")
+            form.save()
+            form = TimeForm()
+            print("safe")
+        else:
+            print(form.errors)
+        print("is not valid")
+        context = {"form": form}
+
+        return redirect('/gadget_communicator_pull/create_time_plan')
+
+
+class AddPlanTime(View):
+    template_name = "courses/time_plan_create.html"
+    model = TimePlan
+
+    def get(self, request, id=None, *args, **kwargs):
+        # GET method
+        form = TimePlanForm
+        context = {"form": form}
+        return render(request, self.template_name, context)
+
+    def post(self, request, id=None, *args, **kwargs):
+        # POST method
+        form = TimePlanForm(request.POST)
+        if form.is_valid():
+            form.save()
+            form = TimePlanForm()
+            print("safe")
+        context = {"form": form}
+
+        return redirect('/gadget_communicator_pull/create')
 
 def hello_view(*args, **kwargs):
     return JsonResponse({'foo': 'bar'})
