@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Do you want to delete the course "{{ object.title }}"?</h1>
+
+{% for instance in object_list %}
+     <p>{{ instance.id }} </p>
+     <p>dfdfd</p>
+     {% for i in instance.water_time_relation.all %}
+     <p>inner {{ i.time_water }} </p>
+     {% endfor %}
+{% endfor %}
+
+
+{% endblock %}

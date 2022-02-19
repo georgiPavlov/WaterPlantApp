@@ -1,14 +1,10 @@
 from django.urls import path
-from .views import AddDevice
-from .views import ListDevice
-from .views import DeviceDeleteView
-from .views import GetDeviceView
-from .views import AddPlan
-from .views import ListPlan
-
-from .views import TimeCreate
-from .views import AddPlanTime
-
+from gadget_communicator_pull.views.device_views import *
+from gadget_communicator_pull.views.ui_device_view import *
+from gadget_communicator_pull.views.ui_basic_plan_view import *
+from gadget_communicator_pull.views.ui_moisture_plan_view import *
+from gadget_communicator_pull.views.ui_time_view import *
+from gadget_communicator_pull.views.ui_time_plan_view import *
 
 app_name = 'gadget_communicator_pull'
 urlpatterns = [
@@ -23,5 +19,13 @@ urlpatterns = [
 
     path('create_time/', TimeCreate.as_view(), name='plans-time-create'),
     path('create_time_plan/', AddPlanTime.as_view(), name='plans-time-create'),
+    path('list_time_plan/', ListTimePlan.as_view(), name='list-time-create'),
 
+    path('create_moisture_plan/', AddMoistureTime.as_view(), name='list-moisture-create'),
+
+    path('getPlan/', GetPlan.as_view(), name='get-plan'),
+    path('postWater', PostWater.as_view(), name='post-water'),
+    path('postStatus', PostWater.as_view(), name='post-status'),
+    path('postMoisture', PostMoisture.as_view(), name='post-moisture'),
+    path('postPlanExecution', PostMoisture.as_view(), name='post-execution'),
 ]

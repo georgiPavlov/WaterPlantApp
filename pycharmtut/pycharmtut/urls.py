@@ -20,11 +20,5 @@ from gadget_communicator_pull import views as v
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('gadget_communicator_pull/', v.hello_view, name='home'),
     path('gadget_communicator_pull/', include('gadget_communicator_pull.urls')),
-    path('getPlan/', v.GetPlan.as_view(), name='home2'),
-    path('postWater', v.PostWater.as_view(), name='home3'),
-    path('postStatus', v.PostWater.as_view(), name='home3'),
-    path('postMoisture', v.PostMoisture.as_view(), name='home4'),
-    path('postPlanExecution', v.PostMoisture.as_view(), name='home4'),
 ]
