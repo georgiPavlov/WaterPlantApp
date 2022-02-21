@@ -20,11 +20,10 @@ class TimeCreate(View):
         if form.is_valid():
             print("safe1234")
             form.save()
-            form = TimeForm()
             print("safe")
         else:
             print(form.errors)
-        print("is not valid")
-        context = {"form": form}
+
+
 
         return redirect('/gadget_communicator_pull/create_time_plan')

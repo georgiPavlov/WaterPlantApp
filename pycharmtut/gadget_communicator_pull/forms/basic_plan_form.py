@@ -5,7 +5,6 @@ from gadget_communicator_pull.models.device_module import Device
 WATER_PLAN_BASIC = 'basic'
 
 
-
 class BasicPlanForm(forms.ModelForm):
     relation = forms.ModelChoiceField(queryset=Device.objects.all())
 

@@ -4,7 +4,7 @@ from .device_module import Device
 
 
 class BasicPlan(models.Model):
-    device_relation = models.ForeignKey(Device, on_delete=models.CASCADE)
+    device_relation = models.ForeignKey(Device, related_name='devices', on_delete=models.CASCADE)
     name = models.CharField(max_length=20)
     plan_type = models.CharField(max_length=20)
     water_volume = models.IntegerField(default=0)

@@ -1,7 +1,14 @@
+import json as simplejson
+from django.core import serializers
+
 from django.shortcuts import render, redirect
 from django.views import View
 from gadget_communicator_pull.forms.basic_plan_form import BasicPlanForm
 from gadget_communicator_pull.models.basic_plan_module import BasicPlan
+from gadget_communicator_pull.water_serializers.base_plan_serializer import BasePlanSerializer
+
+
+
 
 
 class AddPlan(View):
@@ -34,4 +41,15 @@ class ListPlan(View):
 
     def get(self, request, *args, **kwargs):
         context = {'object_list': self.get_queryset()}
+        basicPlan = BasicPlan.objects.all()[:1].get()
+        print()
+        serializer = BasePlanSerializer(instance=basicPlan)
+
+        # serialized_obj = serializers.serialize('json', [basicPlan, ],indent = 4, relations = ('object_type', 'individual',)))
+        #serialized_obj = serializer.serialize("json", [basicPlan], indent=4, relations = ('device_relation',))
+        print(serializer.data)
+
+
+
+
         return render(request, self.template_name, context)
