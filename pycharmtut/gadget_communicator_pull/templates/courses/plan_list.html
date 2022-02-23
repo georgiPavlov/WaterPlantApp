@@ -6,6 +6,10 @@
 
 {% for instance in object_list %}
      <p>{{ instance.id }} - {{ instance.label }}</p>
+     {% for i in instance.devices_b.all %}
+        <p> {{i.label}} </p>
+         <p>2</p>
+     {% endfor %}
      <p>dfdfd</p>
 {% endfor %}
 

@@ -10,6 +10,10 @@
      {% for i in instance.water_time_relation.all %}
      <p>inner {{ i.time_water }} </p>
      {% endfor %}
+     {% for c in instance.devices_t.all %}
+     <p> {{c.label}} </p>
+     <p>2</p>
+     {% endfor %}
 {% endfor %}
 
 

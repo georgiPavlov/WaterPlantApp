@@ -2,6 +2,11 @@ from django.http import JsonResponse
 from rest_framework import generics
 import sys
 import json
+import gadget_communicator_pull.water_serializers.base_plan_serializer
+import gadget_communicator_pull.water_serializers.time_plan_serializer
+import gadget_communicator_pull.water_serializers.moisture_plan_serializer
+import gadget_communicator_pull.water_serializers.device_serializer
+
 
 
 class GetPlan(generics.GenericAPIView):
@@ -11,6 +16,7 @@ class GetPlan(generics.GenericAPIView):
         #  "check_interval": 1}
         plan = {"name": "plant1", "plan_type": "time_based", "water_volume": 200,
                 "water_times": [{"weekday": "Friday", "time_water": "07:47 PM"}]}
+
         return JsonResponse(plan, safe=False)
 
 

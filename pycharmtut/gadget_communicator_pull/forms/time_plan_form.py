@@ -28,8 +28,10 @@ class TimePlanForm(forms.ModelForm):
         instance = super(TimePlanForm, self).save(commit=False)
         device_rel = self.cleaned_data['relation_rel']
         water_time_rel = self.cleaned_data['water_time_rel']
-        instance.device_relation = device_rel
+        device_rel.device_relation_t = instance
         instance.save(commit)
+        device_rel.save()
         for i in water_time_rel:
-            instance.water_time_relation.add(i)
+            water_time_rel.water_time_relation.add(i)
+            water_time_rel.save()
         return instance
