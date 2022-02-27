@@ -12,6 +12,7 @@ from gadget_communicator_pull.water_serializers.constants.water_constants import
 from gadget_communicator_pull.water_serializers.from_to_json_serializer import to_json_serializer, \
     remove_device_field_from_json
 from gadget_communicator_pull.water_serializers.moisture_plan_serializer import MoisturePlanSerializer
+from gadget_communicator_pull.water_serializers.status_serializer import StatusSerializer
 from gadget_communicator_pull.water_serializers.time_plan_serializer import TimePlanSerializer
 
 
@@ -33,6 +34,7 @@ class DeviceObjectMixin(object):
         return Device.objects.filter(device_id=device_guid).first()
 
 
+
 class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
     def get(self, request, *args, **kwargs):
         # plan = {"name": "plant1", "plan_type": "moisture", "water_volume": 200, "moisture_threshold": 0.8,
@@ -52,6 +54,8 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
         if device.device_relation_b is not None:
             print(f'Plan of type: {device.device_relation_b.plan_type}')
             plan = device.device_relation_b
+            device.device_relation_b = None
+            device.save()
             serializer = BasePlanSerializer(instance=plan)
             plan_json = to_json_serializer(serializer)
         elif device.device_relation_m is not None:
@@ -62,6 +66,11 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
         elif device.device_relation_t is not None:
             plan = device.device_relation_t
             print(f'Plan of type: {device.device_relation_t.plan_type}')
+            if plan.is_running is True:
+                return HttpResponse(status=status.HTTP_204_NO_CONTENT)
+                # delete plan
+            device.device_relation_t = None
+            device.save()
             serializer = TimePlanSerializer(instance=plan)
             plan_json = to_json_serializer(serializer)
         else:
@@ -164,8 +173,14 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
             print(f'execution_message {execution_message} is empty')
             return HttpResponse(status=status.HTTP_403_FORBIDDEN)
 
+        print(body_data)
+        serializer = StatusSerializer(data=body_data)
+        serializer.is_valid()
+        status_el = serializer.save()
+        print(type(status_el))
 
-         #dfdsfds
 
+        device.status_relation = status_el
+        device.save()
         return JsonResponse(body_data)
 

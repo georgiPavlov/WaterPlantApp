@@ -8,7 +8,8 @@ class MoisturePlan(models.Model):
     water_volume = models.IntegerField(default=0)
     moisture_threshold = models.IntegerField(default=0)
     check_interval = models.IntegerField(default=0)
-    execute_it = models.BooleanField(default=False)
+    is_running = models.BooleanField(default=False)
+    has_been_executed = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return reverse("gadget_communicator_pull:moisture-plan", kwargs={"id": self.id})

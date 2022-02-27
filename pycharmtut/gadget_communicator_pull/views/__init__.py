@@ -11,7 +11,6 @@ __all__ = [
     'PostWater',
     'PostMoisture',
     'PostPlanExecution',
-    'PostStatus',
     # ui_device_view
     'AddPlan',
     'ListPlan',

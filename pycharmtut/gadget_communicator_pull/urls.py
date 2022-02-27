@@ -26,5 +26,5 @@ urlpatterns = [
     path('getPlan/', GetPlan.as_view(), name='get-plan'),
     path('postWater', PostWater.as_view(), name='post-water'),
     path('postMoisture', PostMoisture.as_view(), name='post-moisture'),
-    path('postStatus', PostMoisture.as_view(), name='post-execution'),
+    path('postStatus', PostPlanExecution.as_view(), name='post-execution'),
 ]

@@ -10,8 +10,8 @@ class WaterTimeSerializer(serializers.ModelSerializer):
 
 
 class TimePlanSerializer(serializers.ModelSerializer):
-    device = DeviceSerializer(read_only=True, source='devices_b')
-    weekday_times = WaterTimeSerializer(many=True,read_only=True, source='devices_b')
+    device = DeviceSerializer(read_only=True, source='statuses')
+    weekday_times = WaterTimeSerializer(many=True, read_only=True, source='water_times')
 
     class Meta:
         model = TimePlan
