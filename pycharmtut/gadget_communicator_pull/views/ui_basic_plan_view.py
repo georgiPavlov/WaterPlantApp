@@ -42,7 +42,7 @@ class ListPlan(View):
 
     def get(self, request, *args, **kwargs):
         context = {'object_list': self.get_queryset()}
-        basicPlan = BasicPlan.objects.all()[2]
+        basicPlan = BasicPlan.objects.all()[1]
         print(f"id {basicPlan.id}")
         print(type(basicPlan.devices_b))
         print(type(Device.objects.all().first().device_relation_b))

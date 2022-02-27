@@ -1,6 +1,5 @@
 from django.db import models
 from django.urls import reverse
-from .water_time_module import WaterTime
 
 
 class TimePlan(models.Model):
