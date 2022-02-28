@@ -26,8 +26,6 @@ class MoistureForm(forms.ModelForm):
     def save(self, commit=True):
         instance = super(MoistureForm, self).save(commit=False)
         device_rel = self.cleaned_data['relation']
-        device_rel.device_relation_m = instance
-
         instance.save(commit)
-        device_rel.save()
+        instance.devices_m.add(device_rel)
         return instance

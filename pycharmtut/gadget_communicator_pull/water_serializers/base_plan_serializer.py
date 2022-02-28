@@ -4,11 +4,11 @@ from gadget_communicator_pull.water_serializers.device_serializer import DeviceS
 
 
 class BasePlanSerializer(serializers.ModelSerializer):
-    device = DeviceSerializer(read_only=True, source='devices_b')
+    devices = DeviceSerializer(many=True, read_only=True, source='devices_b')
 
     class Meta:
         model = BasicPlan
-        fields = ['name', 'plan_type', 'water_volume', 'device']
+        fields = ['name', 'plan_type', 'water_volume', 'devices']
 
     # def create(self, validated_data):
         # print("s")

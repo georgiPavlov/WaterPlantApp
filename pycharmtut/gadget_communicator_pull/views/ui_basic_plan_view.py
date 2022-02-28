@@ -42,11 +42,16 @@ class ListPlan(View):
 
     def get(self, request, *args, **kwargs):
         context = {'object_list': self.get_queryset()}
-        basicPlan = BasicPlan.objects.all()[1]
+        for f in BasicPlan.objects.all():
+            print(f)
+        basicPlan = BasicPlan.objects.all()[0]
         print(f"id {basicPlan.id}")
         print(type(basicPlan.devices_b))
         print(type(Device.objects.all().first().device_relation_b))
         print(f"id {basicPlan.id}")
+        for c in Device.objects.all():
+            print(c)
+            print(c.device_relation_b)
         devices = Device.objects.filter(device_relation_b=basicPlan)
         print(type(devices.first()))
         print(f'label2 {devices.first().label}')

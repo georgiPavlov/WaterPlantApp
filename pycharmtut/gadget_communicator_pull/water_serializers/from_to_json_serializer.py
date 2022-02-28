@@ -1,6 +1,6 @@
 import json as simplejson
 
-from gadget_communicator_pull.water_serializers.constants.water_constants import DEVICE
+from gadget_communicator_pull.water_serializers.constants.water_constants import DEVICES
 
 
 def to_json_serializer(serializer):
@@ -8,7 +8,7 @@ def to_json_serializer(serializer):
 
 
 def remove_device_field_from_json(json_obj):
-    json_obj.pop(DEVICE, None)
+    json_obj.pop(DEVICES, None)
     return json_obj
 
 

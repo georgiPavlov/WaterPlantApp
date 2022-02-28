@@ -5,7 +5,7 @@ from gadget_communicator_pull.water_serializers.device_serializer import DeviceS
 
 
 class MoisturePlanSerializer(serializers.ModelSerializer):
-    device = DeviceSerializer(read_only=True, source='devices_m')
+    device = DeviceSerializer(many=True, read_only=True, source='devices_m')
 
     class Meta:
         model = MoisturePlan
@@ -25,3 +25,4 @@ class MoisturePlanSerializer(serializers.ModelSerializer):
         #
         # for device_data in devices_data:
         #     BasicPlan.objects.create(devices_b=base_plan, **device_data)
+

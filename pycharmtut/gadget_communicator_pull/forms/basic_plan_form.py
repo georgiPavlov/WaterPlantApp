@@ -16,10 +16,9 @@ class BasicPlanForm(forms.ModelForm):
     def save(self, commit=True):
         instance = super(BasicPlanForm, self).save(commit=False)
         device_rel = self.cleaned_data['relation']
-        device_rel.device_relation_b = instance
-
         instance.save(commit)
-        device_rel.save()
+        instance.devices_b.add(device_rel)
+
         return instance
 
     class Meta:

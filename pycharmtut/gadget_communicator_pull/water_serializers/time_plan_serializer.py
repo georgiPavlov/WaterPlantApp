@@ -10,12 +10,12 @@ class WaterTimeSerializer(serializers.ModelSerializer):
 
 
 class TimePlanSerializer(serializers.ModelSerializer):
-    device = DeviceSerializer(read_only=True, source='statuses')
+    devices = DeviceSerializer(many=True, read_only=True, source='statuses')
     weekday_times = WaterTimeSerializer(many=True, read_only=True, source='water_times')
 
     class Meta:
         model = TimePlan
-        fields = ['name', 'plan_type', 'water_volume', 'device', 'times']
+        fields = ['name', 'plan_type', 'water_volume', 'devices', 'times']
 
     # def create(self, validated_data):
     # print("s")
