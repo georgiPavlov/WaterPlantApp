@@ -1,18 +1,18 @@
 from django.urls import path
-from gadget_communicator_pull.views.device_views import *
-from gadget_communicator_pull.views.ui_device_view import *
-from gadget_communicator_pull.views.ui_basic_plan_view import *
-from gadget_communicator_pull.views.ui_moisture_plan_view import *
-from gadget_communicator_pull.views.ui_time_view import *
-from gadget_communicator_pull.views.ui_time_plan_view import *
+from gadget_communicator_pull.views.devicecom.device_views import *
+from gadget_communicator_pull.views.ui.ui_device_view import *
+from gadget_communicator_pull.views.ui.ui_basic_plan_view import *
+from gadget_communicator_pull.views.ui.ui_moisture_plan_view import *
+from gadget_communicator_pull.views.ui.ui_time_view import *
+from gadget_communicator_pull.views.ui.ui_time_plan_view import *
 
 app_name = 'gadget_communicator_pull'
 urlpatterns = [
 
-    path('create/', AddDevice.as_view(), name='courses-create'),
-    path('list/', ListDevice.as_view(), name='courses-list'),
-    path('delete/<int:id>', DeviceDeleteView.as_view(), name='courses-delete'),
-    path('get/<int:id>', GetDeviceView.as_view(), name='courses-get'),
+    path('create/', AddDevice.as_view(), name='water-create'),
+    path('list/', ListDevice.as_view(), name='water-list'),
+    path('delete/<int:id>', DeviceDeleteView.as_view(), name='water-delete'),
+    path('get/<int:id>', GetDeviceView.as_view(), name='water-get'),
 
     path('create_plan/', AddPlan.as_view(), name='plans-create'),
     path('list_plan/', ListPlan.as_view(), name='plan-list'),

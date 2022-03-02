@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 
-from gadget_communicator_pull.helper import WEEKDAYS
+from gadget_communicator_pull.helpers.helper import WEEKDAYS
 from gadget_communicator_pull.models import TimePlan
 
 

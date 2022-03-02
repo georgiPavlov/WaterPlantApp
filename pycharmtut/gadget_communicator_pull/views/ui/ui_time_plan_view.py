@@ -7,7 +7,7 @@ import json as simplejson
 
 
 class AddPlanTime(View):
-    template_name = "courses/time_plan_create.html"
+    template_name = "water/time_plan_create.html"
     model = TimePlan
 
     def get(self, request, id=None, *args, **kwargs):
@@ -29,7 +29,7 @@ class AddPlanTime(View):
 
 
 class ListTimePlan(View):
-    template_name = "courses/plan_time_list.html"
+    template_name = "water/plan_time_list.html"
 
     def get_queryset(self):
         return TimePlan.objects.all()

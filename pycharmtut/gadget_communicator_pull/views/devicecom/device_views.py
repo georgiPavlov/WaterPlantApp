@@ -1,15 +1,14 @@
 from django.http import JsonResponse, HttpResponse
 from rest_framework import status
 from rest_framework import generics
-import sys
 import json
 
-from gadget_communicator_pull.models import Device, BasicPlan
+from gadget_communicator_pull.models import Device
 from gadget_communicator_pull.water_serializers.base_plan_serializer import BasePlanSerializer
 from gadget_communicator_pull.water_serializers.constants.water_constants import DEVICE, WATER_LEVEL, \
     MOISTURE_LEVEL, EXECUTION_STATUS, EXECUTION_MESSAGE
 
-from gadget_communicator_pull.water_serializers.from_to_json_serializer import to_json_serializer, \
+from gadget_communicator_pull.helpers.from_to_json_serializer import to_json_serializer, \
     remove_device_field_from_json
 from gadget_communicator_pull.water_serializers.moisture_plan_serializer import MoisturePlanSerializer
 from gadget_communicator_pull.water_serializers.status_serializer import StatusSerializer

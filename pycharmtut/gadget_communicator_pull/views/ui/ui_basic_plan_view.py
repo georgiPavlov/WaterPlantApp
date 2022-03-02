@@ -13,7 +13,7 @@ from gadget_communicator_pull.water_serializers.base_plan_serializer import Base
 
 
 class AddPlan(View):
-    template_name = "courses/plan_create.html"
+    template_name = "water/plan_create.html"
     model = BasicPlan
 
     def get(self, request, id=None, *args, **kwargs):
@@ -35,7 +35,7 @@ class AddPlan(View):
 
 
 class ListPlan(View):
-    template_name = "courses/plan_list.html"
+    template_name = "water/plan_list.html"
 
     def get_queryset(self):
         return BasicPlan.objects.all()

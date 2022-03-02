@@ -5,7 +5,7 @@ from gadget_communicator_pull.models.water_time_module import WaterTime
 
 
 class TimeCreate(View):
-    template_name = "courses/water_time_create.html"
+    template_name = "water/water_time_create.html"
     model = WaterTime
 
     def get(self, request, id=None, *args, **kwargs):

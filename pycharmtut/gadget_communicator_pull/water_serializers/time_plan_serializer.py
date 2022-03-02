@@ -1,4 +1,4 @@
-from gadget_communicator_pull.helper import WEEKDAYS
+from gadget_communicator_pull.helpers.helper import WEEKDAYS
 from gadget_communicator_pull.models import WaterTime, TimePlan
 from gadget_communicator_pull.water_serializers.device_serializer import DeviceSerializer
 from rest_framework import serializers

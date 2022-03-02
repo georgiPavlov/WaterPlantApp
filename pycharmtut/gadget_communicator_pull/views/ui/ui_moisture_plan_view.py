@@ -5,7 +5,7 @@ from gadget_communicator_pull.models.moisture_plan_module import MoisturePlan
 
 
 class AddMoistureTime(View):
-    template_name = "courses/moisture_plan_create.html"
+    template_name = "water/moisture_plan_create.html"
     model = MoisturePlan
 
     def get(self, request, id=None, *args, **kwargs):
