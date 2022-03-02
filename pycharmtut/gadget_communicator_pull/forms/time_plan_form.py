@@ -7,7 +7,7 @@ WATER_PLAN_TIME = 'time_based'
 
 
 class TimePlanForm(forms.ModelForm):
-    water_time_rel = forms.ModelMultipleChoiceField(queryset=WaterTime.objects.all())
+    water_time_rel = forms.ModelMultipleChoiceField(queryset=WaterTime.objects.filter(is_in_use=False))
     relation_rel = forms.ModelChoiceField(queryset=Device.objects.all())
 
     def __init__(self, *args, **kwargs):
@@ -33,5 +33,7 @@ class TimePlanForm(forms.ModelForm):
         instance.devices_t.add(device_rel)
 
         for i in water_time_rel:
+            i.is_in_use = True
+            i.save()
             instance.water_times.add(i)
         return instance

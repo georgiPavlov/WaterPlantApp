@@ -51,9 +51,8 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
 
         plan_json = None
         plan = None
-        print(f'{type(device.device_relation_b.all())} relation...')
-        print(f'{device.device_relation_b.name} relation2...')
-        if device.device_relation_b is not None:
+
+        if device.device_relation_b:
             print('Basic plan scenario')
             plans = device.device_relation_b.all()
             filtrated_plans = plans.filter(has_been_executed=False)
@@ -61,7 +60,7 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
                 plan = filtrated_plans.first()
                 serializer = BasePlanSerializer(instance=plan)
                 plan_json = to_json_serializer(serializer)
-        elif device.device_relation_m is not None:
+        if device.device_relation_m:
             print('Moisture plan scenario')
             plans = device.device_relation_m.all()
             filtrated_plans = plans.filter(has_been_executed=False)
@@ -69,16 +68,14 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
                 plan = filtrated_plans.first()
                 serializer = MoisturePlanSerializer(instance=plan)
                 plan_json = to_json_serializer(serializer)
-        elif device.device_relation_t:
+        if device.device_relation_t:
             print('Time plan scenario')
             plans = device.device_relation_t.all()
             filtrated_plans = plans.filter(has_been_executed=False)
-            if filtrated_plans is not None:
+            if filtrated_plans:
                 plan = filtrated_plans.first()
                 serializer = TimePlanSerializer(instance=plan)
                 plan_json = to_json_serializer(serializer)
-        else:
-            print('All plan relations are empty')
 
         if plan_json is None:
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)

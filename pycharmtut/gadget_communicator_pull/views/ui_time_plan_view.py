@@ -2,6 +2,8 @@ from django.shortcuts import render, redirect
 from django.views import View
 from gadget_communicator_pull.forms.time_plan_form import TimePlanForm
 from gadget_communicator_pull.models.time_plan_module import TimePlan
+from gadget_communicator_pull.water_serializers.time_plan_serializer import TimePlanSerializer
+import json as simplejson
 
 
 class AddPlanTime(View):
@@ -34,4 +36,9 @@ class ListTimePlan(View):
 
     def get(self, request, *args, **kwargs):
         context = {'object_list': self.get_queryset()}
+        for i in TimePlan.objects.all():
+            serializer = TimePlanSerializer(instance=i)
+            print(serializer.data)
+            payload = simplejson.loads(simplejson.dumps(serializer.data))
+            print(payload)
         return render(request, self.template_name, context)
