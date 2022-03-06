@@ -3,7 +3,7 @@ from django.urls import reverse
 
 
 class MoisturePlan(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=20, unique=True)
     plan_type = models.CharField(max_length=20)
     water_volume = models.IntegerField(default=0)
     moisture_threshold = models.IntegerField(default=0)

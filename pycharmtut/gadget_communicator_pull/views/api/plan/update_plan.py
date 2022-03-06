@@ -3,6 +3,7 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
+from rest_framework import status
 
 from gadget_communicator_pull.models import Device
 
@@ -25,5 +26,5 @@ class ApiUpdateDevice(generics.CreateAPIView):
                 continue
             else:
                 print("in")
-                return JsonResponse(status=404, data={'status': 'false', 'unsupported_field': key})
+                return JsonResponse(status=status.HTTP_404_NOT_FOUND, data={'status': 'false', 'unsupported_field': key})
         return JsonResponse(body_data)

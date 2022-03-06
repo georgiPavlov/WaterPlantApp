@@ -1,8 +1,8 @@
 from django import forms
+
+from gadget_communicator_pull.constants.water_constants import WATER_PLAN_BASIC
 from gadget_communicator_pull.models.basic_plan_module import BasicPlan
 from gadget_communicator_pull.models.device_module import Device
-
-WATER_PLAN_BASIC = 'basic'
 
 
 class BasicPlanForm(forms.ModelForm):

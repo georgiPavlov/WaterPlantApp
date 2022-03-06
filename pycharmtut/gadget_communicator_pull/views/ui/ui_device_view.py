@@ -5,7 +5,7 @@ from gadget_communicator_pull.models.device_module import Device
 
 
 class AddDevice(View):
-    template_name = "water/device_create.html"
+    template_name = "water/model/device_create.html"
     model = Device
 
     def get_object(self):
@@ -34,7 +34,7 @@ class AddDevice(View):
 
 
 class ListDevice(View):
-    template_name = "water/device_list.html"
+    template_name = "water/model/device_list.html"
 
     def get_queryset(self):
         return Device.objects.all()
@@ -56,7 +56,7 @@ class DeviceMixin(object):
 
 
 class GetDeviceView(DeviceMixin, View):
-    template_name = "water/device_get.html"
+    template_name = "water/model/device_get.html"
     model = Device
 
     def get(self, request, id=None, *args, **kwargs):
@@ -66,7 +66,7 @@ class GetDeviceView(DeviceMixin, View):
 
 
 class DeviceDeleteView(DeviceMixin, View):
-    template_name = "water/device_delete.html"  # DetailView
+    template_name = "water/model/device_delete.html"  # DetailView
 
     def get(self, request, id=None, *args, **kwargs):
         # GET method

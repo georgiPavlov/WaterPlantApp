@@ -13,7 +13,7 @@ from gadget_communicator_pull.water_serializers.base_plan_serializer import Base
 
 
 class AddPlan(View):
-    template_name = "water/plan_create.html"
+    template_name = "water/model/plan_create.html"
     model = BasicPlan
 
     def get(self, request, id=None, *args, **kwargs):
@@ -35,7 +35,7 @@ class AddPlan(View):
 
 
 class ListPlan(View):
-    template_name = "water/plan_list.html"
+    template_name = "water/model/plan_list.html"
 
     def get_queryset(self):
         return BasicPlan.objects.all()
@@ -46,7 +46,8 @@ class ListPlan(View):
             print(f)
         basicPlan = BasicPlan.objects.all()[0]
         print(f"id {basicPlan.id}")
-        print(type(basicPlan.devices_b))
+        print(f"dfkdsfl;kdsjflkdsjflkdsjfldskfjdlsk")
+        print(type(basicPlan.devices_b.all()))
         print(type(Device.objects.all().first().device_relation_b))
         print(f"id {basicPlan.id}")
         for c in Device.objects.all():
@@ -54,7 +55,6 @@ class ListPlan(View):
             print(c.device_relation_b)
         devices = Device.objects.filter(device_relation_b=basicPlan)
         print(type(devices.first()))
-        print(f'label2 {devices.first().label}')
         #print(f"label:  {devices.first().label}")
         print("213")
         for i in BasicPlan.objects.all():

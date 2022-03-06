@@ -1,9 +1,9 @@
 from django import forms
+
+from gadget_communicator_pull.constants.water_constants import WATER_PLAN_TIME
 from gadget_communicator_pull.models.time_plan_module import TimePlan
 from gadget_communicator_pull.models.water_time_module import WaterTime
 from gadget_communicator_pull.models.device_module import Device
-
-WATER_PLAN_TIME = 'time_based'
 
 
 class TimePlanForm(forms.ModelForm):

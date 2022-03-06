@@ -1,8 +1,6 @@
 from django import forms
 from gadget_communicator_pull.models.water_time_module import WaterTime
 
-WATER_PLAN_TIME = 'time_based'
-
 
 class TimeForm(forms.ModelForm):
     time_rel = forms.TimeField(widget=forms.TimeInput(format='%H:%M'))

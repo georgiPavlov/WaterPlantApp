@@ -1,8 +1,9 @@
 from django import forms
+
+from gadget_communicator_pull.constants.water_constants import WATER_PLAN_MOISTURE
 from gadget_communicator_pull.models.moisture_plan_module import MoisturePlan
 from gadget_communicator_pull.models.device_module import Device
 
-WATER_PLAN_MOISTURE = 'moisture'
 
 
 class MoistureForm(forms.ModelForm):

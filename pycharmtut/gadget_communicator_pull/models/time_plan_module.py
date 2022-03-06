@@ -3,7 +3,7 @@ from django.urls import reverse
 
 
 class TimePlan(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=20, unique=True)
     plan_type = models.CharField(max_length=20)
     water_volume = models.IntegerField(default=0)
     execute_only_once = models.BooleanField(default=False)

@@ -7,9 +7,9 @@ from gadget_communicator_pull.models.status_module import Status
 
 
 class Device(models.Model):
-    device_relation_b = models.ManyToManyField(BasicPlan, related_name='devices_b', null=True)
-    device_relation_t = models.ManyToManyField(TimePlan, related_name='devices_t', null=True)
-    device_relation_m = models.ManyToManyField(MoisturePlan, related_name='devices_m', null=True)
+    device_relation_b = models.ManyToManyField(BasicPlan, related_name='devices_b')
+    device_relation_t = models.ManyToManyField(TimePlan, related_name='devices_t')
+    device_relation_m = models.ManyToManyField(MoisturePlan, related_name='devices_m')
     status_relation = models.ForeignKey(Status, related_name='statuses', on_delete=models.CASCADE, null=True)
 
     device_id = models.CharField(max_length=50)
