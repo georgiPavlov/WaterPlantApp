@@ -1,27 +1,32 @@
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView
+from rest_framework import status
 
-from gadget_communicator_pull.models import Device, BasicPlan, TimePlan, MoisturePlan
-from gadget_communicator_pull.water_serializers.base_plan_serializer import BasePlanSerializer
+from gadget_communicator_pull.models import BasicPlan, TimePlan, MoisturePlan
 from gadget_communicator_pull.water_serializers.device_serializer import DeviceSerializer
-from gadget_communicator_pull.water_serializers.moisture_plan_serializer import MoisturePlanSerializer
-from gadget_communicator_pull.water_serializers.time_plan_serializer import TimePlanSerializer
+
+
+def get_plan_for_name(name):
+    basic_plan = BasicPlan.objects.filter(name=name).first()
+    time_plan = TimePlan.objects.filter(name=name).first()
+    moisture_plan = MoisturePlan.objects.filter(name=name).first()
+
+    if basic_plan is not None:
+        return basic_plan
+    elif time_plan is not None:
+        return time_plan
+    elif moisture_plan is not None:
+        return moisture_plan
+    return None
 
 
 class ApiGetPlansByDeviceId(DetailView):
     def get(self, request, *args, **kwargs):
-        id_ = self.kwargs.get("id")
-        device = get_object_or_404(Device, device_id=id_)
+        name_ = self.kwargs.get("id")
+        plan = get_plan_for_name(name=name_)
 
-        basic_plans = BasicPlan.objects.filter(devices_b=device)
-        time_plans = TimePlan.objects.filter(devices_t=device)
-        moisture_plans = MoisturePlan.objects.filter(devices_m=device)
+        if plan is None:
+            return JsonResponse(status=status.HTTP_404_NOT_FOUND, data={'status': 'plan not found'})
 
-        basic_plans_json = BasePlanSerializer(basic_plans, many=True)
-        time_plans_json = TimePlanSerializer(time_plans, many=True)
-        moisture_plans_json = MoisturePlanSerializer(moisture_plans, many=True)
-
-        plans_json = [basic_plans_json.data, time_plans_json.data, moisture_plans_json.data]
-
-        return JsonResponse(plans_json, safe=False)
+        serializer = DeviceSerializer(plan)
+        return JsonResponse(serializer.data)

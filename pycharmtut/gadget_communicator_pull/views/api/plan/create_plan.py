@@ -6,11 +6,10 @@ import json
 
 from gadget_communicator_pull.constants.water_constants import PLAN_TYPE, WATER_PLAN_TIME, WATER_PLAN_BASIC, \
     WATER_PLAN_MOISTURE, DEVICE_ID, DEVISES, PLAN_NAME
-from gadget_communicator_pull.helpers.from_to_json_serializer import remove_device_field_from_json, to_json_serializer
+from gadget_communicator_pull.helpers.from_to_json_serializer import remove_device_field_from_json
 from gadget_communicator_pull.models import Device, BasicPlan, TimePlan, MoisturePlan
 
 from gadget_communicator_pull.water_serializers.base_plan_serializer import BasePlanSerializer
-from gadget_communicator_pull.water_serializers.device_serializer import DeviceSerializer
 from gadget_communicator_pull.water_serializers.time_plan_serializer import TimePlanSerializer
 from gadget_communicator_pull.water_serializers.moisture_plan_serializer import MoisturePlanSerializer
 
