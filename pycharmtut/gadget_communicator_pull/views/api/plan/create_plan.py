@@ -23,7 +23,6 @@ def validate_for_duplicate(name):
         return True
     return False
 
-
 class ApiCreatePlan(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         body_unicode = request.body.decode('utf-8')
@@ -76,6 +75,16 @@ class ApiCreatePlan(generics.CreateAPIView):
 
         elif WATER_PLAN_TIME == plan_type:
             print(f'water type: {WATER_PLAN_TIME}')
+            water_times_len = len(body_data['water_times'])
+            if water_times_len == 0:
+                return JsonResponse(status=status.HTTP_400_BAD_REQUEST,
+                                    data={'status': 'false', 'unsupported_format': 'You must provide water_times obj'})
+            for key in body_data:
+                if key == 'execute_only_once' and water_times_len > 1:
+                    return JsonResponse(status=status.HTTP_400_BAD_REQUEST,
+                                        data={'status': 'false',
+                                              'unsupported_format': 'You must provide only one obj in water_times as  execute_only_once field included'})
+
             body_data_copy = body_data.copy()
             json_without_device_field = remove_device_field_from_json(body_data_copy)
             serializer = TimePlanSerializer(data=json_without_device_field)

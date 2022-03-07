@@ -3,6 +3,7 @@ from django.urls import path
 from gadget_communicator_pull.views.api.plan.create_plan import ApiCreatePlan
 from gadget_communicator_pull.views.api.plan.get_plans_by_device_id import ApiGetPlansByDeviceId
 from gadget_communicator_pull.views.api.plan.list_plans import ApiListPlans
+from gadget_communicator_pull.views.api.plan.update_plan import ApiUpdatePlan
 from gadget_communicator_pull.views.devicecom.device_views import *
 from gadget_communicator_pull.views.ui.ui_device_view import *
 from gadget_communicator_pull.views.ui.ui_basic_plan_view import *
@@ -46,4 +47,5 @@ urlpatterns = [
     path('api/create_plan', ApiCreatePlan.as_view(), name='api_create_plan'),
     path('api/list_plans', ApiListPlans.as_view(), name='api_list_plans'),
     path('api/get_plans_by_device_id/<int:id>', ApiGetPlansByDeviceId.as_view(), name='api_get_plans_by_device_id'),
+    path('api/update_plan', ApiUpdatePlan.as_view(), name='api_update_plan'),
 ]
