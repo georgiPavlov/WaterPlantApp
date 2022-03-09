@@ -21,7 +21,7 @@ class TimePlanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TimePlan
-        fields = ['name', 'plan_type', 'water_volume', 'has_been_executed','devices','weekday_times']
+        fields = ['name', 'plan_type', 'water_volume', 'has_been_executed', 'devices', 'weekday_times']
 
     # def create(self, validated_data):
     # print("s")

@@ -9,7 +9,7 @@ class MoisturePlanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MoisturePlan
-        fields = ['name', 'plan_type', 'water_volume', 'device', 'moisture_threshold']
+        fields = ['name', 'plan_type', 'water_volume', 'device', 'moisture_threshold', 'check_interval']
 
     # def create(self, validated_data):
         # print("s")

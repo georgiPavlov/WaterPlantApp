@@ -37,7 +37,14 @@ WEEKDAYS = BitChoices((('mon', 'Monday'), ('tue', 'Tuesday'), ('wed', 'Wednesday
                        ))
 DATE_INPUT_FORMATS = ["%I:%M %p"]
 
+WEEKDAYS_NUMERIC = dict({'Monday': 1, 'Tuesday': 2, 'Wednesday': 4, 'Thursday': 8, 'Friday': 16, 'Saturday': 32, 'Sunday': 64})
+
 print(list(WEEKDAYS))
 print(WEEKDAYS.fri)
-print(WEEKDAYS.get_selected_values(52))
-print(WEEKDAYS.get_selected_values(4).pop())
+# print(WEEKDAYS.get_selected_keys('mon'))
+# print(WEEKDAYS.get_selected_values('Friday'))
+if 'dd' in WEEKDAYS_NUMERIC.keys():
+    print("Key exists")
+else:
+    print("Key does not exist")
+

@@ -5,9 +5,13 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework import status
 
-from gadget_communicator_pull.constants.water_constants import WATER_PLAN_BASIC, WATER_PLAN_MOISTURE, WATER_PLAN_TIME, \
-    DELETE_RUNNING_PLAN
-from gadget_communicator_pull.models import Device, BasicPlan, TimePlan, MoisturePlan, WaterTime
+from gadget_communicator_pull.constants.water_constants import WATER_PLAN_MOISTURE, WATER_PLAN_TIME, \
+    DELETE_RUNNING_PLAN, EXECUTION_PROPERTY, PLAN_HAS_BEEN_EXECUTED, PLAN_WATER_VOLUME, PLAN_MOISTURE_THRESHOLD, \
+    PLAN_MOISTURE_WATER_TIMES, PLAN_NAME, PLAN_TYPE, PLAN_MOISTURE_CHECK_INTERVAL, PLAN_MOISTURE_WEEKDAY_TIMES, \
+    TIME_PLAN_TIMES, TIME_WEEKDAY, TIME_WATER
+from gadget_communicator_pull.helpers.helper import WEEKDAYS_NUMERIC
+from gadget_communicator_pull.models import BasicPlan, TimePlan, MoisturePlan, WaterTime
+from gadget_communicator_pull.water_serializers.time_plan_serializer import WaterTimeSerializer
 
 
 def get_plan_for_name(name):
@@ -27,12 +31,12 @@ def get_plan_for_name(name):
 class ApiUpdatePlan(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         body_unicode = request.body.decode('utf-8')
-        if 'name' not in body_unicode:
+        if PLAN_NAME not in body_unicode:
             return JsonResponse(status=status.HTTP_404_NOT_FOUND,
-                                data={'status': 'false', 'key_not_found': 'name'})
+                                data={'status': 'false', 'key_not_found': PLAN_NAME})
         body_data = json.loads(body_unicode)
         print(body_data)
-        name = body_data['name']
+        name = body_data[PLAN_NAME]
         plan = get_plan_for_name(name)
 
         if plan.plan_type is DELETE_RUNNING_PLAN:
@@ -46,35 +50,52 @@ class ApiUpdatePlan(generics.CreateAPIView):
 
         for key in body_data:
             print(type(key))
-            if key == 'water_volume':
+            print(f'key: {key}')
+            print(f'plan: {plan.plan_type}')
+            if key == PLAN_MOISTURE_THRESHOLD:
+                print("true..")
+            if key == PLAN_WATER_VOLUME:
                 plan.water_volume = body_data[key]
-                plan.save(update_fields=['water_volume'])
-            elif key == 'moisture_threshold' and plan.plan_type is WATER_PLAN_MOISTURE:
-                plan.water_level = body_data[key]
-                plan.save(update_fields=['moisture_threshold'])
-            elif key == 'water_times' and plan.plan_type is WATER_PLAN_TIME:
-                print("water_times")
-                water_times_len = len(body_data['water_times'])
+                plan.save(update_fields=[PLAN_WATER_VOLUME])
+            elif key == PLAN_MOISTURE_THRESHOLD and plan.plan_type == WATER_PLAN_MOISTURE:
+                plan.moisture_threshold = body_data[key]
+                plan.save(update_fields=[PLAN_MOISTURE_THRESHOLD])
+            elif key == PLAN_MOISTURE_CHECK_INTERVAL and plan.plan_type == WATER_PLAN_MOISTURE:
+                plan.check_interval = body_data[key]
+                plan.save(update_fields=[PLAN_MOISTURE_CHECK_INTERVAL])
+            elif key == PLAN_MOISTURE_WEEKDAY_TIMES and plan.plan_type == WATER_PLAN_TIME:
+                print(PLAN_MOISTURE_WEEKDAY_TIMES)
+                water_times_len = len(body_data[PLAN_MOISTURE_WEEKDAY_TIMES])
                 water_times_list = []
                 for id in range(water_times_len):
-                    water_time_obj = get_object_or_404(WaterTime, device_id=body_data['water_times'][id])
+                    weekday = body_data[TIME_PLAN_TIMES][id][TIME_WEEKDAY]
+                    time_water = body_data[TIME_PLAN_TIMES][id][TIME_WATER]
+                    if weekday in WEEKDAYS_NUMERIC.keys():
+                        print(f"Key exists {weekday}")
+                        weekday_num = WEEKDAYS_NUMERIC[weekday]
+                    else:
+                        print(f"Key does not exist {weekday}")
+                        return JsonResponse(status=status.HTTP_400_BAD_REQUEST,
+                                            data={'status': 'false', 'unsupported_weekday_field': weekday})
+                    water_time_obj = WaterTime(weekday=weekday_num, time_water=time_water, is_in_use=True)
                     water_times_list.append(water_time_obj)
                 plan.water_times.all().delete()
                 for el in water_times_list:
+                    el.save()
                     plan.water_times.add(el)
                     plan.save()
-            elif key == 'has_been_executed':
+            elif key == PLAN_HAS_BEEN_EXECUTED:
                 plan.water_volume = body_data[key]
-                plan.save(update_fields=['has_been_executed'])
-            elif key == 'execute_only_once' and plan.plan_type is WATER_PLAN_TIME:
+                plan.save(update_fields=[PLAN_HAS_BEEN_EXECUTED])
+            elif key == EXECUTION_PROPERTY and plan.plan_type == WATER_PLAN_TIME:
                 plan.water_volume = body_data[key]
-                plan.save(update_fields=['execute_only_once'])
-            elif key == 'name':
+                plan.save(update_fields=[EXECUTION_PROPERTY])
+            elif key == PLAN_NAME:
                 continue
-            elif key == 'plan_type':
+            elif key == PLAN_TYPE:
                 continue
             else:
-                print("in")
+                print(f'unsupported_field: {key}')
                 return JsonResponse(status=status.HTTP_404_NOT_FOUND,
                                     data={'status': 'false', 'unsupported_field': key})
         return JsonResponse(body_data)
