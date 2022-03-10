@@ -20,7 +20,7 @@ def get_plan_for_name(name):
     return None
 
 
-class ApiGetPlansByDeviceId(DetailView):
+class ApiGetPlansByName(DetailView):
     def get(self, request, *args, **kwargs):
         name_ = self.kwargs.get("id")
         plan = get_plan_for_name(name=name_)

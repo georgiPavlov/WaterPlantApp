@@ -1,9 +1,14 @@
 from django.urls import path
 
 from gadget_communicator_pull.views.api.plan.create_plan import ApiCreatePlan
-from gadget_communicator_pull.views.api.plan.get_plans_by_device_id import ApiGetPlansByDeviceId
+from gadget_communicator_pull.views.api.plan.delete_plan import ApiDeletePlan
+from gadget_communicator_pull.views.api.plan.get_plans_by_name import ApiGetPlansByName
 from gadget_communicator_pull.views.api.plan.list_plans import ApiListPlans
 from gadget_communicator_pull.views.api.plan.update_plan import ApiUpdatePlan
+from gadget_communicator_pull.views.api.status.create_status import ApiCreateStatus
+from gadget_communicator_pull.views.api.status.delete_status import ApiDeleteStatus
+from gadget_communicator_pull.views.api.status.get_status import ApiGetStatus
+from gadget_communicator_pull.views.api.status.list_status import ApiListStatus
 from gadget_communicator_pull.views.devicecom.device_views import *
 from gadget_communicator_pull.views.ui.ui_device_view import *
 from gadget_communicator_pull.views.ui.ui_basic_plan_view import *
@@ -41,11 +46,17 @@ urlpatterns = [
     path('api/create_device', ApiCreateDevice.as_view(), name='api_create_device'),
     path('api/list_devices', ApiListDevices.as_view(), name='api_list_devices'),
     path('api/update_device', ApiUpdateDevice.as_view(), name='api_update_device'),
-    path('api/delete_device/<int:id>', ApiDeleteDevice.as_view(), name='api_delete_device'),
-    path('api/get_device/<int:id>', ApiGetDevice.as_view(), name='api_get_device'),
+    path('api/delete_device/<str:id>', ApiDeleteDevice.as_view(), name='api_delete_device'),
+    path('api/get_device/<str:id>', ApiGetDevice.as_view(), name='api_get_device'),
 
     path('api/create_plan', ApiCreatePlan.as_view(), name='api_create_plan'),
     path('api/list_plans', ApiListPlans.as_view(), name='api_list_plans'),
-    path('api/get_plans_by_device_id/<int:id>', ApiGetPlansByDeviceId.as_view(), name='api_get_plans_by_device_id'),
+    path('api/get_plans_by_name/<str:id>', ApiGetPlansByName.as_view(), name='api_get_plans_by_device_id'),
     path('api/update_plan', ApiUpdatePlan.as_view(), name='api_update_plan'),
+    path('api/delete_plan', ApiDeletePlan.as_view(), name='api_delete_plan'),
+
+    path('api/create_status', ApiCreateStatus.as_view(), name='api_create_status'),
+    path('api/list_status/<str:id>', ApiListStatus.as_view(), name='api_list_status'),
+    path('api/get_status/<str:id>', ApiGetStatus.as_view(), name='api_get_status'),
+    path('api/delete_status/<str:id>', ApiDeleteStatus.as_view(), name='api_delete_status'),
 ]
