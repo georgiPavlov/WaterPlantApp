@@ -1,5 +1,9 @@
 from django.urls import path
 
+from gadget_communicator_pull.views.api.camera.download_photo import ApiDownloadPhoto
+from gadget_communicator_pull.views.api.camera.get_photo_status import ApiGetPhoto
+from gadget_communicator_pull.views.api.camera.take_photo_async import ApiTakePhotoAsync
+from gadget_communicator_pull.views.api.camera.test_camera import ApiCreatePhoto
 from gadget_communicator_pull.views.api.plan.create_plan import ApiCreatePlan
 from gadget_communicator_pull.views.api.plan.delete_plan import ApiDeletePlan
 from gadget_communicator_pull.views.api.plan.get_plans_by_name import ApiGetPlansByName
@@ -59,4 +63,10 @@ urlpatterns = [
     path('api/list_status/<str:id>', ApiListStatus.as_view(), name='api_list_status'),
     path('api/get_status/<str:id>', ApiGetStatus.as_view(), name='api_get_status'),
     path('api/delete_status/<str:id>', ApiDeleteStatus.as_view(), name='api_delete_status'),
+
+    path('api/test_image/<str:id>', ApiCreatePhoto.as_view(), name='api_create_photo'),
+
+    path('api/photo_operation', ApiTakePhotoAsync.as_view(), name='api_create_photo'),
+    path('api/photo_operation/<str:id>', ApiGetPhoto.as_view(), name='api_get_photo_by_id'),
+    path('api/photo_operation/<str:id>/download', ApiDownloadPhoto.as_view(), name='api_download_photo_id'),
 ]
