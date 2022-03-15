@@ -185,6 +185,7 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
         status_el = serializer.save()
         print(type(status_el))
 
+
         device.status_relation = status_el
         device.save()
         return JsonResponse(body_data)
