@@ -6,6 +6,7 @@ import json
 from rest_framework.generics import get_object_or_404
 
 from gadget_communicator_pull.constants.photo_constants import PHOTO_RUNNING, PHOTO_READY, PHOTO_CREATED
+from gadget_communicator_pull.constants.water_constants import DEVICE_ID, PHOTO_ID, IMAGE_FILE
 from gadget_communicator_pull.models import Device
 from gadget_communicator_pull.models.photo_module import PhotoModule
 from gadget_communicator_pull.water_serializers.base_plan_serializer import BasePlanSerializer
@@ -170,7 +171,7 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
         print(body_data)
 
         execution_status = body_data[EXECUTION_STATUS]
-        if device_guid is None:
+        if execution_status is None:
             print(f'execution_status {execution_status} is empty')
             return HttpResponse(status=status.HTTP_403_FORBIDDEN)
 
@@ -185,62 +186,51 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
         status_el = serializer.save()
         print(type(status_el))
 
-
-        device.status_relation = status_el
+        device.status_relation.add(status_el)
         device.save()
         return JsonResponse(body_data)
 
 
-class PostPicture(generics.CreateAPIView, DeviceObjectMixin):
+class PostPhoto(generics.CreateAPIView, DeviceObjectMixin):
     def post(self, request, *args, **kwargs):
-        body_unicode = request.body.decode('utf-8')
-        body_data = json.loads(body_unicode)
-        photo_json = None
-        device_guid = body_data[DEVICE]
-        if device_guid is None:
-            print(f'device_guid {device_guid} is empty')
-            return HttpResponse(status=status.HTTP_403_FORBIDDEN)
-        device = self.get_device(device_guid)
-        if device is None:
-            print(f'no such device {device}')
-            return HttpResponse(status=status.HTTP_403_FORBIDDEN)
-        print(body_data)
-        id_ = body_data[IMAGE]
-        photo = get_object_or_404(PhotoModule, photo_id=id_)
-        if photo_json is None:
-            return HttpResponse(status=status.HTTP_204_NO_CONTENT)
-        image_file = request.FILES.get('image_file')
+        id_d = request.POST.get(DEVICE_ID, None)
+        print(f'id_d {id_d}')
+        device = get_object_or_404(Device, device_id=id_d)
+
+        id_ = request.POST.get(PHOTO_ID, None)
+        print(f'id {id_}')
+        photos = device.photo_relation.all()
+        photo = photos.filter(photo_id=id_).first()
+
+        if photo is None:
+            return HttpResponse(status=status.HTTP_404_NOT_FOUND)
+
+        image_file = request.FILES.get(IMAGE_FILE)
         photo.photo_status = PHOTO_READY
         photo.image = image_file
         photo.save()
-        print(type(photo_json))
-        return JsonResponse(photo_json)
+
+        return JsonResponse(status=status.HTTP_200_OK, data={'status': 'success'})
 
 
 class GetPhoto(generics.GenericAPIView, DeviceObjectMixin):
     def get(self, request, *args, **kwargs):
-        device_guid = self.get_device_guid(self.request.query_params)
-        if device_guid is None:
-            print(f'device_guid {device_guid} is empty')
-            return HttpResponse(status=status.HTTP_403_FORBIDDEN)
-        device = self.get_device(device_guid)
-        if device is None:
-            print(f'no such device {device}')
-            return HttpResponse(status=status.HTTP_403_FORBIDDEN)
+        id_ = self.kwargs.get("id")
+        device = get_object_or_404(Device, device_id=id_)
         photo_json = None
         photo = None
-        if device.filtrated_photos:
+        if device.photo_relation:
             print('posting scenario')
-            photos = device.filtrated_photos.all()
-            filtrated_photos = photos.filter(status=PHOTO_CREATED)
+            photos = device.photo_relation.all()
+            filtrated_photos = photos.filter(photo_status=PHOTO_CREATED)
             if filtrated_photos:
                 photo = filtrated_photos.first()
                 serializer = PhotoSerializer(instance=photo)
-                plan_json = to_json_serializer(serializer)
-        if plan_json is None:
+                photo_json = to_json_serializer(serializer)
+        if photo_json is None:
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)
         photo.photo_status = PHOTO_RUNNING
         photo.save()
         print(type(photo_json))
-        json_without_device_field = remove_device_field_from_json(plan_json)
+        json_without_device_field = remove_device_field_from_json(photo_json)
         return JsonResponse(json_without_device_field, safe=False)

@@ -13,7 +13,7 @@ class ApiCreatePhoto(generics.CreateAPIView):
         photo_el = get_object_or_404(PhotoModule, photo_id=id_)
         image_file = request.FILES.get('image_file')
         photo_el.image = image_file
-        photo_el.photo_status = PHOTO_READY
+       # photo_el.photo_status = PHOTO_READY
         photo_el.save()
 
         return JsonResponse(status=status.HTTP_200_OK,
