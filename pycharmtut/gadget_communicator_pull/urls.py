@@ -50,6 +50,7 @@ urlpatterns = [
     path('postStatus', PostPlanExecution.as_view(), name='post-execution'),
     path('postPhoto', PostPhoto.as_view(), name='post-photo'),
     path('getPhoto/<str:id>', GetPhoto.as_view(), name='get-photo'),
+    path('getWaterLevel', GetWaterLevel.as_view(), name='get-water-level'),
 
     path('api/create_device', ApiCreateDevice.as_view(), name='api_create_device'),
     path('api/list_devices', ApiListDevices.as_view(), name='api_list_devices'),

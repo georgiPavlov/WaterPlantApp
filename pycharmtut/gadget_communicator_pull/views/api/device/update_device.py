@@ -22,6 +22,12 @@ class ApiUpdateDevice(generics.CreateAPIView):
             elif key == 'water_level':
                 device.water_level = body_data[key]
                 device.save(update_fields=['water_level'])
+            elif key == 'water_container_capacity':
+                device.water_level = body_data[key]
+                device.save(update_fields=['water_container_capacity'])
+            elif key == 'water_reset':
+                device.water_level = body_data[key]
+                device.save(update_fields=['water_reset'])
             elif key == 'device_id':
                 continue
             else:

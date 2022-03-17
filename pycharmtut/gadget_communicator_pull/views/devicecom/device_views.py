@@ -8,10 +8,9 @@ from rest_framework.generics import get_object_or_404
 from gadget_communicator_pull.constants.photo_constants import PHOTO_RUNNING, PHOTO_READY, PHOTO_CREATED
 from gadget_communicator_pull.constants.water_constants import DEVICE_ID, PHOTO_ID, IMAGE_FILE
 from gadget_communicator_pull.models import Device
-from gadget_communicator_pull.models.photo_module import PhotoModule
 from gadget_communicator_pull.water_serializers.base_plan_serializer import BasePlanSerializer
 from gadget_communicator_pull.water_serializers.constants.water_constants import DEVICE, WATER_LEVEL, \
-    MOISTURE_LEVEL, EXECUTION_STATUS, EXECUTION_MESSAGE, IMAGE
+    MOISTURE_LEVEL, EXECUTION_STATUS, EXECUTION_MESSAGE
 
 from gadget_communicator_pull.helpers.from_to_json_serializer import to_json_serializer, \
     remove_device_field_from_json
@@ -234,3 +233,19 @@ class GetPhoto(generics.GenericAPIView, DeviceObjectMixin):
         print(type(photo_json))
         json_without_device_field = remove_device_field_from_json(photo_json)
         return JsonResponse(json_without_device_field, safe=False)
+
+
+class GetWaterLevel(generics.GenericAPIView, DeviceObjectMixin):
+    def get(self, request, *args, **kwargs):
+        id_ = self.kwargs.get("id")
+        device = get_object_or_404(Device, device_id=id_)
+
+        if device.water_reset:
+            print(f'update water for {device.device_id}')
+            device.water_reset = False
+            device.save()
+            JsonResponse(status=status.HTTP_200_OK, data={'water': device.water_container_capacity})
+        print(f'device water container is not for update {device.device_id}')
+        JsonResponse(status=status.HTTP_204_NO_CONTENT, data={})
+
+
