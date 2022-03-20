@@ -8,7 +8,7 @@ class BasePlanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BasicPlan
-        fields = ['name', 'plan_type', 'water_volume', 'devices']
+        fields = ['name', 'plan_type', 'water_volume', 'devices', 'has_been_executed']
 
     # def create(self, validated_data):
         # print("s")
