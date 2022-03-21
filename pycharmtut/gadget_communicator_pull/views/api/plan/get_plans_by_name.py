@@ -3,7 +3,10 @@ from django.views.generic import DetailView
 from rest_framework import status
 
 from gadget_communicator_pull.models import BasicPlan, TimePlan, MoisturePlan
+from gadget_communicator_pull.water_serializers.base_plan_serializer import BasePlanSerializer
 from gadget_communicator_pull.water_serializers.device_serializer import DeviceSerializer
+from gadget_communicator_pull.water_serializers.moisture_plan_serializer import MoisturePlanSerializer
+from gadget_communicator_pull.water_serializers.time_plan_serializer import TimePlanSerializer
 
 
 def get_plan_for_name(name):
@@ -12,11 +15,14 @@ def get_plan_for_name(name):
     moisture_plan = MoisturePlan.objects.filter(name=name).first()
 
     if basic_plan is not None:
-        return basic_plan
+        serializer = BasePlanSerializer(basic_plan)
+        return serializer.data
     elif time_plan is not None:
-        return time_plan
+        serializer = MoisturePlanSerializer(basic_plan)
+        return serializer.data
     elif moisture_plan is not None:
-        return moisture_plan
+        serializer = TimePlanSerializer(basic_plan)
+        return serializer.data
     return None
 
 
@@ -28,5 +34,4 @@ class ApiGetPlansByName(DetailView):
         if plan is None:
             return JsonResponse(status=status.HTTP_404_NOT_FOUND, data={'status': 'plan not found'})
 
-        serializer = DeviceSerializer(plan)
-        return JsonResponse(serializer.data)
+        return JsonResponse(plan)
