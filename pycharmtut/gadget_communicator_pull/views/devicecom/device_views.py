@@ -216,8 +216,8 @@ class PostPhoto(generics.CreateAPIView, DeviceObjectMixin):
 
 class GetPhoto(generics.GenericAPIView, DeviceObjectMixin):
     def get(self, request, *args, **kwargs):
-        id_ = self.kwargs.get("id")
-        device = get_object_or_404(Device, device_id=id_)
+        device_guid = self.get_device_guid(self.request.query_params)
+        device = get_object_or_404(Device, device_id=device_guid)
         photo_json = None
         photo = None
         if device.photo_relation:
@@ -239,8 +239,8 @@ class GetPhoto(generics.GenericAPIView, DeviceObjectMixin):
 
 class GetWaterLevel(generics.GenericAPIView, DeviceObjectMixin):
     def get(self, request, *args, **kwargs):
-        id_ = self.kwargs.get("id")
-        device = get_object_or_404(Device, device_id=id_)
+        device_guid = self.get_device_guid(self.request.query_params)
+        device = get_object_or_404(Device, device_id=device_guid)
 
         if device.water_reset:
             print(f'update water for {device.device_id}')
