@@ -248,6 +248,6 @@ class GetWaterLevel(generics.GenericAPIView, DeviceObjectMixin):
             device.save()
             JsonResponse(status=status.HTTP_200_OK, data={'water': device.water_container_capacity})
         print(f'device water container is not for update {device.device_id}')
-        JsonResponse(status=status.HTTP_204_NO_CONTENT, data={})
+        return JsonResponse(status=status.HTTP_204_NO_CONTENT, data={})
 
 
