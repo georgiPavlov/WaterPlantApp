@@ -194,9 +194,8 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
 
 class PostPhoto(generics.CreateAPIView, DeviceObjectMixin):
     def post(self, request, *args, **kwargs):
-
-
-
+        idd = request.FILES.get(DEVICE_ID)
+        print(f'idd {idd}')
         id_d = request.POST.get(DEVICE_ID, None)
         print(f'id_d {id_d}')
         device = get_object_or_404(Device, device_id=id_d)
