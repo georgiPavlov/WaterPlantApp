@@ -16,10 +16,13 @@ class ApiDownloadPhoto(generics.ListAPIView):
         id_ = self.kwargs.get("id")
         img = get_object_or_404(PhotoModule, photo_id=id_)
         image_path = f'{MEDIA_ROOT_BASE}{img.image.url}'
+        print(f'image path: {image_path}')
         file_path = os.path.join(image_path)
         if os.path.exists(file_path):
             with open(file_path, 'rb') as fh:
+                print('opening photo')
                 content_type = mimetypes.guess_type(image_path)[0]
+                print(f'content_type {content_type}')
                 response = HttpResponse(fh.read(), content_type=content_type)
                 response['Content-Disposition'] = "attachment; filename=%s" % file_path
                 return response
