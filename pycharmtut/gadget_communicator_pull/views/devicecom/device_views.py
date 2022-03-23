@@ -194,7 +194,7 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
 
 class PostPhoto(generics.CreateAPIView, DeviceObjectMixin):
     def post(self, request, *args, **kwargs):
-        print(request.params())
+        print(request.POST.items())
         idd = request.FILES.get(DEVICE_ID)
         print(f'idd {idd}')
         id_d = request.POST.get(DEVICE_ID, None)
