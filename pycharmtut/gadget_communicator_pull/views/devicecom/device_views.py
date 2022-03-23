@@ -207,7 +207,8 @@ class PostPhoto(generics.CreateAPIView, DeviceObjectMixin):
         photo = photos.filter(photo_id=id_).first()
 
         if photo is None:
-            return HttpResponse(status=status.HTTP_404_NOT_FOUND)
+            return HttpResponse(request.POST.items())
+            #return HttpResponse(status=status.HTTP_404_NOT_FOUND)
 
         image_file = request.FILES.get(IMAGE_FILE)
         photo.photo_status = PHOTO_READY
