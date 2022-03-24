@@ -1,5 +1,6 @@
 DEVICE = 'device'
 HAS_BEEN_EXECUTED = 'has_been_executed'
+IS_RUNNING = 'is_running'
 DEVICES = 'devices'
 WATER_LEVEL = 'water_level'
 MOISTURE_LEVEL= 'moisture_level'

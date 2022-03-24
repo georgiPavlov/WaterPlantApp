@@ -9,10 +9,10 @@ from gadget_communicator_pull.constants.water_constants import DEVICE_ID, PHOTO_
 from gadget_communicator_pull.models import Device
 from gadget_communicator_pull.water_serializers.base_plan_serializer import BasePlanSerializer
 from gadget_communicator_pull.water_serializers.constants.water_constants import DEVICE, WATER_LEVEL, \
-    MOISTURE_LEVEL, EXECUTION_STATUS, EXECUTION_MESSAGE
+    MOISTURE_LEVEL, EXECUTION_STATUS, EXECUTION_MESSAGE, IS_RUNNING
 
 from gadget_communicator_pull.helpers.from_to_json_serializer import to_json_serializer, \
-    remove_device_field_from_json, remove_has_been_executed_field
+    remove_device_field_from_json, remove_has_been_executed_field, remove_is_running_field
 from gadget_communicator_pull.water_serializers.moisture_plan_serializer import MoisturePlanSerializer
 from gadget_communicator_pull.water_serializers.photo_serializer import PhotoSerializer
 from gadget_communicator_pull.water_serializers.status_serializer import StatusSerializer
@@ -86,15 +86,16 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
         plan.save()
         print(type(plan_json))
         json_without_device_field = remove_device_field_from_json(plan_json)
-        json_without_has_been_executed_field = remove_has_been_executed_field(json_without_device_field)
-
+        final_json = remove_has_been_executed_field(json_without_device_field)
+        if final_json[IS_RUNNING]:
+            final_json = remove_is_running_field(json_obj=final_json)
         # plan1 = {"name": "plant1", "plan_type": "time_based", "water_volume": 200,
         #         "water_times": [{"weekday": "Friday", "time_water": "07:47 PM"}]}
         # plan1 = {"name": "plant1", "plan_type": "basic", "water_volume": 200}
         # plan = {"name": "plant1", "plan_type": "moisture", "water_volume": 200, "moisture_threshold": 0.8,
         #  "check_interval": 1}
 
-        return JsonResponse(json_without_has_been_executed_field, safe=False)
+        return JsonResponse(final_json, safe=False)
 
 
 class PostWater(generics.CreateAPIView, DeviceObjectMixin):
