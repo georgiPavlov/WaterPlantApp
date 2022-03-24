@@ -4,7 +4,6 @@ from rest_framework import generics
 import json
 
 from rest_framework.generics import get_object_or_404
-
 from gadget_communicator_pull.constants.photo_constants import PHOTO_RUNNING, PHOTO_READY, PHOTO_CREATED
 from gadget_communicator_pull.constants.water_constants import DEVICE_ID, PHOTO_ID, IMAGE_FILE
 from gadget_communicator_pull.models import Device
@@ -195,10 +194,6 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
 class PostPhoto(generics.CreateAPIView, DeviceObjectMixin):
     def post(self, request, *args, **kwargs):
 
-        print("test123")
-        print(request.POST['device_id'])
-
-
         id_d = request.POST.get(DEVICE_ID, None)
         print(f'id_d {id_d}')
         device = get_object_or_404(Device, device_id=id_d)
@@ -254,5 +249,3 @@ class GetWaterLevel(generics.GenericAPIView, DeviceObjectMixin):
             JsonResponse(status=status.HTTP_200_OK, data={'water': device.water_container_capacity})
         print(f'device water container is not for update {device.device_id}')
         return JsonResponse(status=status.HTTP_204_NO_CONTENT, data={})
-
-
