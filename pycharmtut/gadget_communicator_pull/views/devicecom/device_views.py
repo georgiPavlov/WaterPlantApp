@@ -113,7 +113,7 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
             print('is_running to false TIME PLAN')
             plans = device.device_relation_t.all()
             for plan in plans:
-                plan.is_running = Falsea
+                plan.is_running = False
                 plan.save(update_fields=[IS_RUNNING])
 
 
