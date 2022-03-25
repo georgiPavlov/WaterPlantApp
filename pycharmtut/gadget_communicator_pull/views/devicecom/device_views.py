@@ -88,17 +88,10 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
         if plan.plan_type == WATER_PLAN_MOISTURE or plan.plan_type == WATER_PLAN_TIME:
             self.set_is_running_plan_to_false(device)
             plan.is_running = True
+            plan_json = remove_is_running_field(json_obj=plan_json)
         print(type(plan_json))
         json_without_device_field = remove_device_field_from_json(plan_json)
         final_json = remove_has_been_executed_field(json_without_device_field)
-        if final_json[IS_RUNNING]:
-            final_json = remove_is_running_field(json_obj=final_json)
-        # plan1 = {"name": "plant1", "plan_type": "time_based", "water_volume": 200,
-        #         "water_times": [{"weekday": "Friday", "time_water": "07:47 PM"}]}
-        # plan1 = {"name": "plant1", "plan_type": "basic", "water_volume": 200}
-        # plan = {"name": "plant1", "plan_type": "moisture", "water_volume": 200, "moisture_threshold": 0.8,
-        #  "check_interval": 1}
-
         return JsonResponse(final_json, safe=False)
 
     def set_is_running_plan_to_false(self, device):
