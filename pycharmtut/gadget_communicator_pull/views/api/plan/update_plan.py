@@ -46,6 +46,7 @@ class ApiUpdatePlan(generics.CreateAPIView):
 
         if body_data[PLAN_TYPE] == DELETE_RUNNING_PLAN:
             if plan.plan_type == WATER_PLAN_MOISTURE or plan.plan_type == WATER_PLAN_TIME:
+                print(f"is running {plan.is_running}")
                 if plan.is_running:
                     print("plan is currently running")
                     plan.is_running = False
