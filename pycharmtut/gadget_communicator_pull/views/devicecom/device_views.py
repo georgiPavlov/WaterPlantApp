@@ -5,7 +5,8 @@ import json
 
 from rest_framework.generics import get_object_or_404
 from gadget_communicator_pull.constants.photo_constants import PHOTO_RUNNING, PHOTO_READY, PHOTO_CREATED
-from gadget_communicator_pull.constants.water_constants import DEVICE_ID, PHOTO_ID, IMAGE_FILE
+from gadget_communicator_pull.constants.water_constants import DEVICE_ID, PHOTO_ID, IMAGE_FILE, WATER_PLAN_MOISTURE, \
+    WATER_PLAN_TIME
 from gadget_communicator_pull.models import Device
 from gadget_communicator_pull.water_serializers.base_plan_serializer import BasePlanSerializer
 from gadget_communicator_pull.water_serializers.constants.water_constants import DEVICE, WATER_LEVEL, \
@@ -84,6 +85,9 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)
         plan.has_been_executed = True
         plan.save()
+        if plan.plan_type == WATER_PLAN_MOISTURE or plan.plan_type == WATER_PLAN_TIME:
+            self.set_is_running_plan_to_false(device)
+            plan.is_running = True
         print(type(plan_json))
         json_without_device_field = remove_device_field_from_json(plan_json)
         final_json = remove_has_been_executed_field(json_without_device_field)
@@ -96,6 +100,21 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
         #  "check_interval": 1}
 
         return JsonResponse(final_json, safe=False)
+
+    def set_is_running_plan_to_false(self, device):
+        print('setting devices running flag to false')
+        if device.device_relation_m:
+            print('is_running to false MOISTURE PLAN')
+            plans = device.device_relation_m.all()
+            for plan in plans:
+                plan.is_running = False
+                plan.save()
+        if device.device_relation_t:
+            print('is_running to false TIME PLAN')
+            plans = device.device_relation_t.all()
+            for plan in plans:
+                plan.is_running = False
+                plan.save(update_fields=IS_RUNNING)
 
 
 class PostWater(generics.CreateAPIView, DeviceObjectMixin):
@@ -194,7 +213,6 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
 
 class PostPhoto(generics.CreateAPIView, DeviceObjectMixin):
     def post(self, request, *args, **kwargs):
-
         id_d = request.POST.get(DEVICE_ID, None)
         print(f'id_d {id_d}')
         device = get_object_or_404(Device, device_id=id_d)

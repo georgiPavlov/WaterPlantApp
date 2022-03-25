@@ -8,7 +8,7 @@ from rest_framework import status
 from gadget_communicator_pull.constants.water_constants import WATER_PLAN_MOISTURE, WATER_PLAN_TIME, \
     DELETE_RUNNING_PLAN, EXECUTION_PROPERTY, PLAN_HAS_BEEN_EXECUTED, PLAN_WATER_VOLUME, PLAN_MOISTURE_THRESHOLD, \
     PLAN_MOISTURE_WATER_TIMES, PLAN_NAME, PLAN_TYPE, PLAN_MOISTURE_CHECK_INTERVAL, PLAN_MOISTURE_WEEKDAY_TIMES, \
-    TIME_PLAN_TIMES, TIME_WEEKDAY, TIME_WATER
+    TIME_PLAN_TIMES, TIME_WEEKDAY, TIME_WATER, IS_RUNNING
 from gadget_communicator_pull.helpers.helper import WEEKDAYS_NUMERIC
 from gadget_communicator_pull.models import BasicPlan, TimePlan, MoisturePlan, WaterTime
 from gadget_communicator_pull.water_serializers.time_plan_serializer import WaterTimeSerializer
@@ -39,14 +39,27 @@ class ApiUpdatePlan(generics.CreateAPIView):
         name = body_data[PLAN_NAME]
         plan = get_plan_for_name(name)
 
-        if plan.plan_type is DELETE_RUNNING_PLAN:
-            plan.water_volume = False
-            plan.save(update_fields=['has_been_executed'])
-
         if plan is None:
             print(f'plan {plan}')
             return JsonResponse(status=status.HTTP_404_NOT_FOUND,
                                 data={'status': 'false', 'unsupported_field1': name})
+
+        if body_data[PLAN_TYPE] is DELETE_RUNNING_PLAN:
+            if plan.plan_type is WATER_PLAN_MOISTURE or plan.plan_type is WATER_PLAN_TIME:
+                if plan.is_running:
+                    print("plan is currently running")
+                    plan.is_running = False
+                    plan.save(update_fields=IS_RUNNING)
+                    plan.has_been_executed = True
+                    plan.save(update_fields=PLAN_HAS_BEEN_EXECUTED)
+                else:
+                    print("plan is not currently running")
+                    return JsonResponse(status=status.HTTP_403_FORBIDDEN,
+                                        data={'status': 'false', 'message': 'plan is not currently running'})
+            else:
+                print("basic plan does not have such field")
+                return JsonResponse(status=status.HTTP_403_FORBIDDEN,
+                                    data={'status': 'true', 'message': 'basic plan does not have such field'})
 
         for key in body_data:
             print(type(key))
