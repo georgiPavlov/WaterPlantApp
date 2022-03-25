@@ -44,14 +44,15 @@ class ApiUpdatePlan(generics.CreateAPIView):
             return JsonResponse(status=status.HTTP_404_NOT_FOUND,
                                 data={'status': 'false', 'unsupported_field1': name})
 
-        if body_data[PLAN_TYPE] is DELETE_RUNNING_PLAN:
-            if plan.plan_type is WATER_PLAN_MOISTURE or plan.plan_type is WATER_PLAN_TIME:
+        if body_data[PLAN_TYPE] == DELETE_RUNNING_PLAN:
+            if plan.plan_type == WATER_PLAN_MOISTURE or plan.plan_type == WATER_PLAN_TIME:
                 if plan.is_running:
                     print("plan is currently running")
                     plan.is_running = False
                     plan.save(update_fields=IS_RUNNING)
                     plan.has_been_executed = True
                     plan.save(update_fields=PLAN_HAS_BEEN_EXECUTED)
+
                 else:
                     print("plan is not currently running")
                     return JsonResponse(status=status.HTTP_403_FORBIDDEN,
