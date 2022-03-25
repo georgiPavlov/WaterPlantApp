@@ -108,13 +108,13 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
             plans = device.device_relation_m.all()
             for plan in plans:
                 plan.is_running = False
-                plan.save()
+                plan.save(update_fields=[IS_RUNNING])
         if device.device_relation_t:
             print('is_running to false TIME PLAN')
             plans = device.device_relation_t.all()
             for plan in plans:
-                plan.is_running = False
-                plan.save(update_fields=IS_RUNNING)
+                plan.is_running = Falsea
+                plan.save(update_fields=[IS_RUNNING])
 
 
 class PostWater(generics.CreateAPIView, DeviceObjectMixin):
