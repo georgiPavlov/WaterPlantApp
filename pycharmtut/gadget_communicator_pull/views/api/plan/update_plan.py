@@ -51,7 +51,7 @@ class ApiUpdatePlan(generics.CreateAPIView):
                     print("plan is currently running")
                     plan.is_running = False
                     plan.save(update_fields=[IS_RUNNING])
-                    plan.has_been_executed = True
+                    plan.has_been_executed = False
                     plan.save(update_fields=[PLAN_HAS_BEEN_EXECUTED])
 
                 else:
