@@ -95,6 +95,7 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
         print(type(plan_json))
         json_without_device_field = remove_device_field_from_json(plan_json)
         final_json = remove_has_been_executed_field(json_without_device_field)
+        print(f"rr: {final_json}")
         return JsonResponse(final_json, safe=False)
 
     def set_is_running_plan_to_false(self, device):
