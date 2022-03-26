@@ -53,7 +53,8 @@ class ApiUpdatePlan(generics.CreateAPIView):
                     plan.save(update_fields=[IS_RUNNING])
                     plan.has_been_executed = False
                     plan.save(update_fields=[PLAN_HAS_BEEN_EXECUTED])
-
+                    plan.plan_type = DELETE_RUNNING_PLAN
+                    plan.save(update_fields=[PLAN_TYPE])
                 else:
                     print("plan is not currently running")
                     return JsonResponse(status=status.HTTP_403_FORBIDDEN,
