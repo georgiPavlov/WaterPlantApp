@@ -1,17 +1,17 @@
 from django.http import JsonResponse
-from rest_framework import generics
-import json as simplejson
+from rest_framework import generics, permissions
 
 from gadget_communicator_pull.models import Device, BasicPlan, TimePlan, MoisturePlan
-from gadget_communicator_pull.water_serializers.device_serializer import DeviceSerializer
 from gadget_communicator_pull.water_serializers.base_plan_serializer import BasePlanSerializer
 from gadget_communicator_pull.water_serializers.moisture_plan_serializer import MoisturePlanSerializer
 from gadget_communicator_pull.water_serializers.time_plan_serializer import TimePlanSerializer
 
 
 class ApiListPlans(generics.ListAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
     def get(self, request, *args, **kwargs):
-        devices = Device.objects.all()
+        devices = Device.objects.filter(owner=request.user)
         basic_plans = BasicPlan.objects.filter(devices_b__in=devices)
         time_plans = TimePlan.objects.filter(devices_t__in=devices)
         moisture_plans = MoisturePlan.objects.filter(devices_m__in=devices)

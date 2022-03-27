@@ -8,7 +8,7 @@ from gadget_communicator_pull.views.api.camera.take_photo_async import ApiTakePh
 from gadget_communicator_pull.views.api.camera.test_camera import ApiCreatePhoto
 from gadget_communicator_pull.views.api.plan.create_plan import ApiCreatePlan
 from gadget_communicator_pull.views.api.plan.delete_plan import ApiDeletePlan
-from gadget_communicator_pull.views.api.plan.get_plans_by_name import ApiGetPlansByName
+from gadget_communicator_pull.views.api.plan.get_plans_by_device import ApiGetPlansByDeviceId
 from gadget_communicator_pull.views.api.plan.list_plans import ApiListPlans
 from gadget_communicator_pull.views.api.plan.update_plan import ApiUpdatePlan
 from gadget_communicator_pull.views.api.status.create_status import ApiCreateStatus
@@ -60,7 +60,7 @@ urlpatterns = [
 
     path('api/create_plan', ApiCreatePlan.as_view(), name='api_create_plan'),
     path('api/list_plans', ApiListPlans.as_view(), name='api_list_plans'),
-    path('api/get_plans_by_name/<str:id>', ApiGetPlansByName.as_view(), name='api_get_plans_by_device_id'),
+    path('api/get_plans_by_device_id/<str:id>', ApiGetPlansByDeviceId.as_view(), name='api_get_plans_by_device_id'),
     path('api/update_plan', ApiUpdatePlan.as_view(), name='api_update_plan'),
     path('api/delete_plan', ApiDeletePlan.as_view(), name='api_delete_plan'),
 

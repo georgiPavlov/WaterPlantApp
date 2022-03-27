@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework import status
 import json
 
@@ -15,25 +15,32 @@ from gadget_communicator_pull.water_serializers.time_plan_serializer import Time
 from gadget_communicator_pull.water_serializers.moisture_plan_serializer import MoisturePlanSerializer
 
 
-def validate_for_duplicate(name):
-    basic_plans = BasicPlan.objects.filter(name=name).first()
-    time_plans = TimePlan.objects.filter(name=name).first()
-    moisture_plans = MoisturePlan.objects.filter(name=name).first()
-    print(basic_plans)
-    print(time_plans)
-    print(moisture_plans)
-    if basic_plans is None and time_plans is None and moisture_plans is None:
-        return True
-    return False
+def validate_for_duplicate(name, devices):
+    for device in devices:
+        plans_b = device.device_relation_b.all()
+        plans_t = device.device_relation_t.all()
+        plans_m = device.device_relation_m.all()
+        basic_plan = plans_b.filter(name=name).first()
+        time_plan = plans_t.filter(name=name).first()
+        moisture_plan = plans_m.filter(name=name).first()
+
+        if basic_plan is None and time_plan is None and moisture_plan is None:
+            continue
+        else:
+            return False
+    return True
 
 
 class ApiCreatePlan(generics.CreateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
     def post(self, request, *args, **kwargs):
         body_unicode = request.body.decode('utf-8')
         body_data = json.loads(body_unicode)
         name = body_data.get(PLAN_NAME)
+        devices = Device.objects.filter(owner=request.user)
 
-        if not validate_for_duplicate(name=body_data):
+        if not validate_for_duplicate(name=body_data, devices=devices):
             return JsonResponse(status=status.HTTP_403_FORBIDDEN, data={'status': 'false', 'duplicate_plan': name})
 
         if PLAN_TYPE not in body_data:
@@ -65,6 +72,9 @@ class ApiCreatePlan(generics.CreateAPIView):
             devices_len = len(body_data[DEVISES])
             for id in range(devices_len):
                 device_obj = get_object_or_404(Device, device_id=body_data[DEVISES][id][DEVICE_ID])
+                if device_obj.owner != request.user:
+                    return JsonResponse(status=status.HTTP_404_NOT_FOUND,
+                                        data={'status': 'false', 'message': "No such device for user"})
                 status_el.devices_b.add(device_obj)
             status_el.save()
 
@@ -84,6 +94,9 @@ class ApiCreatePlan(generics.CreateAPIView):
             devices_len = len(body_data[DEVISES])
             for id in range(devices_len):
                 device_obj = get_object_or_404(Device, device_id=body_data[DEVISES][id][DEVICE_ID])
+                if device_obj.owner != request.user:
+                    return JsonResponse(status=status.HTTP_404_NOT_FOUND,
+                                        data={'status': 'false', 'message': "No such device for user"})
                 status_el.devices_m.add(device_obj)
             status_el.save()
 
@@ -142,6 +155,9 @@ class ApiCreatePlan(generics.CreateAPIView):
             print(f'devices_len {devices_len}')
             for id in range(devices_len):
                 device_obj = get_object_or_404(Device, device_id=body_data[DEVISES][id][DEVICE_ID])
+                if device_obj.owner != request.user:
+                    return JsonResponse(status=status.HTTP_404_NOT_FOUND,
+                                        data={'status': 'false', 'message': "No such device for user"})
                 status_el.devices_t.add(device_obj)
             status_el.save()
 

@@ -2,7 +2,7 @@ import json
 
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework import status
 
 from gadget_communicator_pull.constants.water_constants import WATER_PLAN_MOISTURE, WATER_PLAN_TIME, \
@@ -10,25 +10,30 @@ from gadget_communicator_pull.constants.water_constants import WATER_PLAN_MOISTU
     PLAN_MOISTURE_WATER_TIMES, PLAN_NAME, PLAN_TYPE, PLAN_MOISTURE_CHECK_INTERVAL, PLAN_MOISTURE_WEEKDAY_TIMES, \
     TIME_PLAN_TIMES, TIME_WEEKDAY, TIME_WATER, IS_RUNNING
 from gadget_communicator_pull.helpers.helper import WEEKDAYS_NUMERIC
-from gadget_communicator_pull.models import BasicPlan, TimePlan, MoisturePlan, WaterTime
+from gadget_communicator_pull.models import BasicPlan, TimePlan, MoisturePlan, WaterTime, Device
 from gadget_communicator_pull.water_serializers.time_plan_serializer import WaterTimeSerializer
 
 
-def get_plan_for_name(name):
-    basic_plan = BasicPlan.objects.filter(name=name).first()
-    time_plan = TimePlan.objects.filter(name=name).first()
-    moisture_plan = MoisturePlan.objects.filter(name=name).first()
+def get_plan_for_name(name, devices):
+    for device in devices:
+        plans_b = device.device_relation_b.all()
+        plans_t = device.device_relation_t.all()
+        plans_m = device.device_relation_m.all()
+        basic_plan = plans_b.filter(name=name).first()
+        time_plan = plans_t.filter(name=name).first()
+        moisture_plan = plans_m.filter(name=name).first()
 
-    if basic_plan is not None:
-        return basic_plan
-    elif time_plan is not None:
-        return time_plan
-    elif moisture_plan is not None:
-        return moisture_plan
+        if basic_plan is not None:
+            return basic_plan
+        elif time_plan is not None:
+            return time_plan
+        elif moisture_plan is not None:
+            return moisture_plan
     return None
 
-
 class ApiUpdatePlan(generics.CreateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
     def post(self, request, *args, **kwargs):
         body_unicode = request.body.decode('utf-8')
         if PLAN_NAME not in body_unicode:
@@ -37,7 +42,8 @@ class ApiUpdatePlan(generics.CreateAPIView):
         body_data = json.loads(body_unicode)
         print(body_data)
         name = body_data[PLAN_NAME]
-        plan = get_plan_for_name(name)
+        devices = Device.objects.filter(owner=request.user)
+        plan = get_plan_for_name(name, devices=devices)
 
         if plan is None:
             print(f'plan {plan}')

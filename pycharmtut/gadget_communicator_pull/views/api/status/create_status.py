@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 import json
 
 from rest_framework.generics import get_object_or_404
@@ -11,6 +11,8 @@ from gadget_communicator_pull.water_serializers.status_serializer import StatusS
 
 
 class ApiCreateStatus(generics.CreateAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
     def post(self, request, *args, **kwargs):
 
         st = Status(execution_status=True, message='random status')
@@ -43,6 +45,9 @@ class ApiCreateStatus(generics.CreateAPIView):
 
         for id in range(devices_len):
             device_obj = get_object_or_404(Device, device_id=body_data[DEVISES][id][DEVICE_ID])
+            if device_obj.owner != request.user:
+                return JsonResponse(status=status.HTTP_404_NOT_FOUND,
+                                    data={'status': 'false', 'message': "No such device for user"})
             status_el.statuses.add(device_obj)
         status_el.save()
 
