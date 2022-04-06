@@ -19,4 +19,5 @@ PLAN_MOISTURE_THRESHOLD = "moisture_threshold"
 PLAN_MOISTURE_WATER_TIMES = "water_times"
 PLAN_MOISTURE_WEEKDAY_TIMES = "weekday_times"
 PLAN_MOISTURE_CHECK_INTERVAL = "check_interval"
+STATUS_TIME = "status_time"
 

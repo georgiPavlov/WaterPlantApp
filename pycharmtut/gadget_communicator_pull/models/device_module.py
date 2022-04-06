@@ -28,3 +28,8 @@ class Device(models.Model):
     class Meta:
         unique_together = ['device_id', 'label', "water_level", "water_level"]
         ordering = ['device_id']
+
+
+class WaterChart(models.Model):
+    water_chart = models.IntegerField(default=100)
+    device_relation = models.ForeignKey(Device, related_name='water_charts', on_delete=models.CASCADE, null=True)

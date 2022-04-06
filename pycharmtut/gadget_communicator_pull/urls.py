@@ -6,6 +6,7 @@ from gadget_communicator_pull.views.api.camera.get_photo_status import ApiGetPho
 from gadget_communicator_pull.views.api.camera.list_photos import ApiListPhotos
 from gadget_communicator_pull.views.api.camera.take_photo_async import ApiTakePhotoAsync
 from gadget_communicator_pull.views.api.camera.test_camera import ApiCreatePhoto
+from gadget_communicator_pull.views.api.device.device_water_chart import ApiDeviceWaterChart
 from gadget_communicator_pull.views.api.plan.create_plan import ApiCreatePlan
 from gadget_communicator_pull.views.api.plan.delete_plan import ApiDeletePlan
 from gadget_communicator_pull.views.api.plan.get_plans_by_device import ApiGetPlansByDeviceId
@@ -57,6 +58,7 @@ urlpatterns = [
     path('api/update_device', ApiUpdateDevice.as_view(), name='api_update_device'),
     path('api/delete_device/<str:id>', ApiDeleteDevice.as_view(), name='api_delete_device'),
     path('api/get_device/<str:id>', ApiGetDevice.as_view(), name='api_get_device'),
+    path('api/list_device_charts/<str:id>', ApiDeviceWaterChart.as_view(), name='api_get_device_charts'),
 
     path('api/create_plan', ApiCreatePlan.as_view(), name='api_create_plan'),
     path('api/list_plans', ApiListPlans.as_view(), name='api_list_plans'),

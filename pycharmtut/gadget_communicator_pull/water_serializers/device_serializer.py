@@ -1,5 +1,11 @@
 from rest_framework import serializers
-from gadget_communicator_pull.models.device_module import Device
+from gadget_communicator_pull.models.device_module import Device, WaterChart
+
+
+class WaterChartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WaterChart
+        fields = ['water_chart']
 
 
 class DeviceSerializer(serializers.ModelSerializer):

@@ -1,13 +1,15 @@
 from django.http import JsonResponse, HttpResponse
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework import generics
 import json
 
 from rest_framework.generics import get_object_or_404
 from gadget_communicator_pull.constants.photo_constants import PHOTO_RUNNING, PHOTO_READY, PHOTO_CREATED
 from gadget_communicator_pull.constants.water_constants import DEVICE_ID, PHOTO_ID, IMAGE_FILE, WATER_PLAN_MOISTURE, \
-    WATER_PLAN_TIME, DELETE_RUNNING_PLAN
+    WATER_PLAN_TIME, DELETE_RUNNING_PLAN, STATUS_TIME
+from gadget_communicator_pull.helpers import time_keeper
 from gadget_communicator_pull.models import Device
+from gadget_communicator_pull.models.device_module import WaterChart
 from gadget_communicator_pull.water_serializers.base_plan_serializer import BasePlanSerializer
 from gadget_communicator_pull.water_serializers.constants.water_constants import DEVICE, WATER_LEVEL, \
     MOISTURE_LEVEL, EXECUTION_STATUS, EXECUTION_MESSAGE, IS_RUNNING
@@ -39,6 +41,8 @@ class DeviceObjectMixin(object):
 
 
 class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
+    permission_classes = (permissions.AllowAny,)
+
     def get(self, request, *args, **kwargs):
         # plan = {"name": "plant1", "plan_type": "moisture", "water_volume": 200, "moisture_threshold": 0.8,
         #  "check_interval": 1}
@@ -115,7 +119,10 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
 
 
 class PostWater(generics.CreateAPIView, DeviceObjectMixin):
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
+        print("intt")
         body_unicode = request.body.decode('utf-8')
         body_data = json.loads(body_unicode)
 
@@ -140,12 +147,18 @@ class PostWater(generics.CreateAPIView, DeviceObjectMixin):
             print(f'water_level {water_level} is empty')
             return HttpResponse(status=status.HTTP_403_FORBIDDEN)
         device.water_level = water_level
-        device.save()
 
+        water_chart_obj_new = WaterChart(water_chart=water_level)
+        water_chart_obj_new.save()
+        device.water_charts.add(water_chart_obj_new)
+
+        device.save()
         return JsonResponse(body_data)
 
 
 class PostMoisture(generics.CreateAPIView, DeviceObjectMixin):
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
         body_unicode = request.body.decode('utf-8')
         body_data = json.loads(body_unicode)
@@ -172,6 +185,8 @@ class PostMoisture(generics.CreateAPIView, DeviceObjectMixin):
 
 
 class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
         body_unicode = request.body.decode('utf-8')
         body_data = json.loads(body_unicode)
@@ -201,6 +216,9 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
         serializer = StatusSerializer(data=body_data)
         serializer.is_valid()
         status_el = serializer.save()
+        date_k = time_keeper.TimeKeeper(time_keeper.TimeKeeper.get_current_date())
+        status_el.status_time = date_k.get_current_time()
+        status_el.save(update_fields=[STATUS_TIME])
         print(type(status_el))
 
         device.status_relation.add(status_el)
@@ -209,6 +227,8 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
 
 
 class PostPhoto(generics.CreateAPIView, DeviceObjectMixin):
+    permission_classes = (permissions.AllowAny,)
+
     def post(self, request, *args, **kwargs):
         id_d = request.POST.get(DEVICE_ID, None)
         print(f'id_d {id_d}')
@@ -231,6 +251,8 @@ class PostPhoto(generics.CreateAPIView, DeviceObjectMixin):
 
 
 class GetPhoto(generics.GenericAPIView, DeviceObjectMixin):
+    permission_classes = (permissions.AllowAny,)
+
     def get(self, request, *args, **kwargs):
         device_guid = self.get_device_guid(self.request.query_params)
         device = get_object_or_404(Device, device_id=device_guid)
@@ -254,6 +276,8 @@ class GetPhoto(generics.GenericAPIView, DeviceObjectMixin):
 
 
 class GetWaterLevel(generics.GenericAPIView, DeviceObjectMixin):
+    permission_classes = (permissions.AllowAny,)
+
     def get(self, request, *args, **kwargs):
         device_guid = self.get_device_guid(self.request.query_params)
         device = get_object_or_404(Device, device_id=device_guid)

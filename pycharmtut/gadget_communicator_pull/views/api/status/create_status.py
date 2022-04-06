@@ -4,7 +4,8 @@ import json
 
 from rest_framework.generics import get_object_or_404
 
-from gadget_communicator_pull.constants.water_constants import DEVISES, DEVICE_ID
+from gadget_communicator_pull.constants.water_constants import DEVISES, DEVICE_ID, STATUS_TIME
+from gadget_communicator_pull.helpers import time_keeper
 from gadget_communicator_pull.helpers.from_to_json_serializer import remove_device_field_from_json
 from gadget_communicator_pull.models import Device, Status
 from gadget_communicator_pull.water_serializers.status_serializer import StatusSerializer
@@ -49,6 +50,9 @@ class ApiCreateStatus(generics.CreateAPIView):
                 return JsonResponse(status=status.HTTP_404_NOT_FOUND,
                                     data={'status': 'false', 'message': "No such device for user"})
             status_el.statuses.add(device_obj)
+        date_k = time_keeper.TimeKeeper(time_keeper.TimeKeeper.get_current_date())
+        status_el.status_time = date_k.get_current_time()
+        status_el.save(update_fields=[STATUS_TIME])
         status_el.save()
 
         print(type(status_el))
