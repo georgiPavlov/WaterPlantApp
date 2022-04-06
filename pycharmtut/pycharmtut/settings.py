@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'gadget_communicator_pull',
     'rest_framework',
     'authentication.apps.AuthConfig',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -51,8 +52,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
-
 ROOT_URLCONF = 'pycharmtut.urls'
 
 TEMPLATES = [
@@ -183,5 +185,9 @@ JWT_AUTH = {
     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
     'JWT_AUTH_COOKIE': None,
 }
+
+CORS_ALLOWED_ORIGINS = [
+    'http://192.168.1.2:8081',
+]
 
 
