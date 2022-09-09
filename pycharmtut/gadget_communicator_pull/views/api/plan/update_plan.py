@@ -73,6 +73,7 @@ class ApiUpdatePlan(generics.CreateAPIView):
         for key in body_data:
             print(type(key))
             print(f'key: {key}')
+            print(f'key value: {body_data[key]}')
             print(f'plan: {plan.plan_type}')
             if key == PLAN_MOISTURE_THRESHOLD:
                 print("true..")
@@ -107,10 +108,10 @@ class ApiUpdatePlan(generics.CreateAPIView):
                     plan.water_times.add(el)
                     plan.save()
             elif key == PLAN_HAS_BEEN_EXECUTED:
-                plan.water_volume = body_data[key]
+                plan.has_been_executed = body_data[key]
                 plan.save(update_fields=[PLAN_HAS_BEEN_EXECUTED])
             elif key == EXECUTION_PROPERTY and plan.plan_type == WATER_PLAN_TIME:
-                plan.water_volume = body_data[key]
+                plan.execute_only_once = body_data[key]
                 plan.save(update_fields=[EXECUTION_PROPERTY])
             elif key == PLAN_NAME:
                 continue
