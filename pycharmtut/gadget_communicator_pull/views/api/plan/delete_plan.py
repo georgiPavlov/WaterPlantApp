@@ -1,3 +1,5 @@
+import logging
+
 from django.http import JsonResponse
 from rest_framework import generics, permissions
 from rest_framework import status
@@ -27,12 +29,11 @@ def get_plan_for_name(name, devices):
 def delete_plan_for_name(plan):
     plan_type = plan.plan_type
     name = plan.name
-
-    if plan_type is WATER_PLAN_BASIC:
+    if plan_type == WATER_PLAN_BASIC:
         BasicPlan.objects.get(name=name).delete()
-    elif plan_type is WATER_PLAN_MOISTURE:
+    elif plan_type == WATER_PLAN_MOISTURE:
         TimePlan.objects.get(name=name).delete()
-    elif plan_type is WATER_PLAN_TIME:
+    elif plan_type == WATER_PLAN_TIME:
         MoisturePlan.objects.get(name=name).delete()
 
 
@@ -41,12 +42,11 @@ class ApiDeletePlan(generics.DestroyAPIView):
 
     def delete(self, request, *args, **kwargs):
         devices = Device.objects.filter(owner=request.user)
+
         name_ = self.kwargs.get("id")
         plan = get_plan_for_name(name=name_, devices=devices)
 
-
         if plan is None:
             return JsonResponse(status=status.HTTP_404_NOT_FOUND, data={'status': 'plan not found'})
-
         delete_plan_for_name(plan)
         return JsonResponse(status=status.HTTP_200_OK, data={'status': 'success'})

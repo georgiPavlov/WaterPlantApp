@@ -64,7 +64,7 @@ urlpatterns = [
     path('api/list_plans', ApiListPlans.as_view(), name='api_list_plans'),
     path('api/get_plans_by_device_id/<str:id>', ApiGetPlansByDeviceId.as_view(), name='api_get_plans_by_device_id'),
     path('api/update_plan', ApiUpdatePlan.as_view(), name='api_update_plan'),
-    path('api/delete_plan', ApiDeletePlan.as_view(), name='api_delete_plan'),
+    path('api/delete_plan/<str:id>', ApiDeletePlan.as_view(), name='api_delete_plan'),
 
     path('api/create_status', ApiCreateStatus.as_view(), name='api_create_status'),
     path('api/list_status/<str:id>', ApiListStatus.as_view(), name='api_list_status'),
