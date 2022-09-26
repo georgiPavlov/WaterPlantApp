@@ -1,17 +1,15 @@
 import json
 
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions
 from rest_framework import status
 
 from gadget_communicator_pull.constants.water_constants import WATER_PLAN_MOISTURE, WATER_PLAN_TIME, \
     DELETE_RUNNING_PLAN, EXECUTION_PROPERTY, PLAN_HAS_BEEN_EXECUTED, PLAN_WATER_VOLUME, PLAN_MOISTURE_THRESHOLD, \
-    PLAN_MOISTURE_WATER_TIMES, PLAN_NAME, PLAN_TYPE, PLAN_MOISTURE_CHECK_INTERVAL, PLAN_MOISTURE_WEEKDAY_TIMES, \
-    TIME_PLAN_TIMES, TIME_WEEKDAY, TIME_WATER, IS_RUNNING
+    PLAN_NAME, PLAN_TYPE, PLAN_MOISTURE_CHECK_INTERVAL, PLAN_MOISTURE_WEEKDAY_TIMES, \
+    TIME_PLAN_TIMES, TIME_WEEKDAY, TIME_WATER, IS_RUNNING, PLAN_TO_STOP
 from gadget_communicator_pull.helpers.helper import WEEKDAYS_NUMERIC
-from gadget_communicator_pull.models import BasicPlan, TimePlan, MoisturePlan, WaterTime, Device
-from gadget_communicator_pull.water_serializers.time_plan_serializer import WaterTimeSerializer
+from gadget_communicator_pull.models import WaterTime, Device
 
 
 def get_plan_for_name(name, devices):
@@ -31,6 +29,7 @@ def get_plan_for_name(name, devices):
             return moisture_plan
     return None
 
+
 class ApiUpdatePlan(generics.CreateAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -45,13 +44,16 @@ class ApiUpdatePlan(generics.CreateAPIView):
         devices = Device.objects.filter(owner=request.user)
         plan = get_plan_for_name(name, devices=devices)
 
+        if name == 'default_stop' and body_data[PLAN_TYPE] == DELETE_RUNNING_PLAN and plan is None:
+            plan_to_stop = body_data[PLAN_TO_STOP]
+            plan = get_plan_for_name(plan_to_stop, devices=devices)
         if plan is None:
             print(f'plan {plan}')
             return JsonResponse(status=status.HTTP_404_NOT_FOUND,
                                 data={'status': 'false', 'unsupported_field1': name})
-
         if body_data[PLAN_TYPE] == DELETE_RUNNING_PLAN:
-            if plan.plan_type == WATER_PLAN_MOISTURE or plan.plan_type == WATER_PLAN_TIME:
+            if plan.plan_type == WATER_PLAN_MOISTURE or plan.plan_type == WATER_PLAN_TIME \
+                    or plan.plan_type == DELETE_RUNNING_PLAN:
                 print(f"is running {plan.is_running}")
                 if plan.is_running:
                     print("plan is currently running")
@@ -69,18 +71,14 @@ class ApiUpdatePlan(generics.CreateAPIView):
                 print("basic plan does not have such field")
                 return JsonResponse(status=status.HTTP_403_FORBIDDEN,
                                     data={'status': 'true', 'message': 'basic plan does not have such field'})
-
         for key in body_data:
-            print(type(key))
-            print(f'key: {key}')
-            print(f'key value: {body_data[key]}')
-            print(f'plan: {plan.plan_type}')
-            if key == PLAN_MOISTURE_THRESHOLD:
+            if key == PLAN_TO_STOP:
                 print("true..")
-            if key == PLAN_WATER_VOLUME:
+            elif key == PLAN_WATER_VOLUME:
                 plan.water_volume = body_data[key]
                 plan.save(update_fields=[PLAN_WATER_VOLUME])
             elif key == PLAN_MOISTURE_THRESHOLD and plan.plan_type == WATER_PLAN_MOISTURE:
+                print('moist plan')
                 plan.moisture_threshold = body_data[key]
                 plan.save(update_fields=[PLAN_MOISTURE_THRESHOLD])
             elif key == PLAN_MOISTURE_CHECK_INTERVAL and plan.plan_type == WATER_PLAN_MOISTURE:
@@ -111,6 +109,12 @@ class ApiUpdatePlan(generics.CreateAPIView):
                 plan.has_been_executed = body_data[key]
                 plan.save(update_fields=[PLAN_HAS_BEEN_EXECUTED])
             elif key == EXECUTION_PROPERTY and plan.plan_type == WATER_PLAN_TIME:
+                weekday_times_len = len(body_data['weekday_times'])
+                if key == EXECUTION_PROPERTY and weekday_times_len > 1:
+                    return JsonResponse(status=status.HTTP_400_BAD_REQUEST,
+                                        data={'status': 'false',
+                                              'unsupported_format': 'You must provide only one obj in weekday_times '
+                                                                    'as  execute_only_once field included'})
                 plan.execute_only_once = body_data[key]
                 plan.save(update_fields=[EXECUTION_PROPERTY])
             elif key == PLAN_NAME:

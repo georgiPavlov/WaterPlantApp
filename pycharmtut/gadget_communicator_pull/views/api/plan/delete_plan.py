@@ -29,11 +29,16 @@ def get_plan_for_name(name, devices):
 def delete_plan_for_name(plan):
     plan_type = plan.plan_type
     name = plan.name
+    print('test ' + name)
+    print('plan type ' + plan_type)
     if plan_type == WATER_PLAN_BASIC:
+        print('test2 ' + WATER_PLAN_TIME + '   ' + name)
         BasicPlan.objects.get(name=name).delete()
-    elif plan_type == WATER_PLAN_MOISTURE:
-        TimePlan.objects.get(name=name).delete()
     elif plan_type == WATER_PLAN_TIME:
+        print('test2 ' + WATER_PLAN_TIME + '   ' + name)
+        TimePlan.objects.get(name=name).delete()
+    elif plan_type == WATER_PLAN_MOISTURE:
+        print('test2 ' + WATER_PLAN_TIME + '   ' + name)
         MoisturePlan.objects.get(name=name).delete()
 
 

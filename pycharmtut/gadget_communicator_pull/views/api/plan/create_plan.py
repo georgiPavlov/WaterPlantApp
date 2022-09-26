@@ -23,12 +23,13 @@ def validate_for_duplicate(name, devices):
         basic_plan = plans_b.filter(name=name).first()
         time_plan = plans_t.filter(name=name).first()
         moisture_plan = plans_m.filter(name=name).first()
-
-        if basic_plan is None and time_plan is None and moisture_plan is None:
-            continue
-        else:
-            return False
-    return True
+        if basic_plan is not None:
+            return True
+        if time_plan is not None:
+            return True
+        if moisture_plan is not None:
+            return True
+    return False
 
 
 class ApiCreatePlan(generics.CreateAPIView):
@@ -39,8 +40,8 @@ class ApiCreatePlan(generics.CreateAPIView):
         body_data = json.loads(body_unicode)
         name = body_data.get(PLAN_NAME)
         devices = Device.objects.filter(owner=request.user)
-
-        if not validate_for_duplicate(name=body_data, devices=devices):
+        print(body_data)
+        if validate_for_duplicate(name=name, devices=devices):
             return JsonResponse(status=status.HTTP_403_FORBIDDEN, data={'status': 'false', 'duplicate_plan': name})
 
         if PLAN_TYPE not in body_data:
