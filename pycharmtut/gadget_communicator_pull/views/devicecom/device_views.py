@@ -20,6 +20,8 @@ from gadget_communicator_pull.water_serializers.moisture_plan_serializer import 
 from gadget_communicator_pull.water_serializers.photo_serializer import PhotoSerializer
 from gadget_communicator_pull.water_serializers.status_serializer import StatusSerializer
 from gadget_communicator_pull.water_serializers.time_plan_serializer import TimePlanSerializer
+from authentication.water_email import WaterEmail
+from django.contrib.auth.models import User
 
 
 class DeviceObjectMixin(object):
@@ -220,9 +222,16 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
         status_el.status_time = date_k.get_current_time()
         status_el.save(update_fields=[STATUS_TIME])
         print(type(status_el))
-
         device.status_relation.add(status_el)
         device.save()
+        print(f'device is>>  {device.send_email}')
+        if device.send_email:
+            user_ = User.objects.filter(announces=device).first()
+            email_ = user_.email
+            email_sender = WaterEmail()
+            email_message = execution_message
+            email_subject = f'Device Operation: {execution_status}'
+            email_sender.send_email(email_receiver=email_, subject=email_subject, message=email_message)
         return JsonResponse(body_data)
 
 

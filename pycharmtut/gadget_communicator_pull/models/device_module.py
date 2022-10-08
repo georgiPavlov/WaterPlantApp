@@ -21,6 +21,7 @@ class Device(models.Model):
     moisture_level = models.IntegerField(default=0)
     water_container_capacity = models.IntegerField(default=2000)
     water_reset = models.BooleanField(default=False)
+    send_email = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return reverse("gadget_communicator_pull:device-info", kwargs={"id": self.id})

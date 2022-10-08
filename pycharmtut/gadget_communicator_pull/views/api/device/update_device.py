@@ -34,6 +34,16 @@ class ApiUpdateDevice(generics.CreateAPIView):
             elif key == 'water_reset':
                 device.water_reset = body_data[key]
                 device.save(update_fields=['water_reset'])
+            elif key == 'send_email':
+                if body_data[key] == 'true':
+                    device.send_email = True
+                elif body_data[key] == 'false':
+                    device.send_email = False
+                if body_data[key]:
+                    device.send_email = True
+                elif not body_data[key]:
+                    device.send_email = False
+                device.save(update_fields=['send_email'])
             elif key == 'device_id':
                 continue
             else:
