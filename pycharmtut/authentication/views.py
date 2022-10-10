@@ -184,6 +184,18 @@ class ApiListUsers(generics.ListAPIView):
         return JsonResponse(serializer.data, safe=False)
 
 
+class HealthCheck(generics.ListAPIView):
+    def get_queryset(self):
+        return User.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        return Response(
+                data={
+                    "message": "There is no user with the registered username"
+                },
+                status=status.HTTP_200_OK)
+
+
 class RegisterUsersView(generics.CreateAPIView):
     """
     POST authentication/register/

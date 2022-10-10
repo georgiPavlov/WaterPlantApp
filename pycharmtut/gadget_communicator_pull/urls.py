@@ -15,7 +15,6 @@ from gadget_communicator_pull.views.api.plan.update_plan import ApiUpdatePlan
 from gadget_communicator_pull.views.api.status.create_status import ApiCreateStatus
 from gadget_communicator_pull.views.api.status.delete_status import ApiDeleteStatus
 from gadget_communicator_pull.views.api.status.get_status import ApiGetStatus
-from gadget_communicator_pull.views.api.status.health_status import HealthStatus
 from gadget_communicator_pull.views.api.status.list_status import ApiListStatus
 from gadget_communicator_pull.views.devicecom.device_views import *
 from gadget_communicator_pull.views.ui.ui_device_view import *
@@ -70,7 +69,6 @@ urlpatterns = [
     path('api/create_status', ApiCreateStatus.as_view(), name='api_create_status'),
     path('api/list_status/<str:id>', ApiListStatus.as_view(), name='api_list_status'),
     path('api/get_status/<str:id>', ApiGetStatus.as_view(), name='api_get_status'),
-    path('api/health', HealthStatus.as_view(), name='health-check'),
     path('api/delete_status/<str:id>', ApiDeleteStatus.as_view(), name='api_delete_status'),
 
     path('api/test_image/<str:id>', ApiCreatePhoto.as_view(), name='api_create_photo'),
