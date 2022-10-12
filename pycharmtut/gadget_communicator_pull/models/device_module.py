@@ -27,7 +27,7 @@ class Device(models.Model):
         return reverse("gadget_communicator_pull:device-info", kwargs={"id": self.id})
 
     class Meta:
-        unique_together = ['device_id', 'label', "water_level", "water_level"]
+        unique_together = ['device_id', 'label']
         ordering = ['device_id']
 
 
