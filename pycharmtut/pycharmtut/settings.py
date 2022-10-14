@@ -25,7 +25,9 @@ SECRET_KEY = 'aaaaaaaaaaaaaaaaaaaaaaaaaa'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["18.184.36.52", "192.168.1.20", "127.0.0.1", '192.168.1.31', '192.168.1.17','172.31.44.13','ip-172-31-44-13.eu-central-1.compute.internal', 'water-me-lb-842691727.eu-central-1.elb.amazonaws.com']
+ALLOWED_HOSTS = ["wmeautomation.de", "18.184.36.52", "192.168.1.20", "127.0.0.1", '192.168.1.31', '192.168.1.17',
+                 '172.31.44.13', 'ip-172-31-44-13.eu-central-1.compute.internal',
+                 'water-me-lb-842691727.eu-central-1.elb.amazonaws.com']
 
 # Application definition
 
@@ -76,12 +78,12 @@ WSGI_APPLICATION = 'pycharmtut.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-#DATABASES = {
+# DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.sqlite3',
 #        'NAME': BASE_DIR / 'db.sqlite3',
 #    }
-#}
+# }
 
 DATABASES = {
     'default': {
@@ -217,7 +219,11 @@ CORS_ALLOWED_ORIGINS = [
     'http://water-me-lb-842691727.eu-central-1.elb.amazonaws.com:8080',
     'http://water-me-lb-842691727.eu-central-1.elb.amazonaws.com:8080',
     'http://water-me-lb-842691727.eu-central-1.elb.amazonaws.com:443',
-    'http://water-me-lb-842691727.eu-central-1.elb.amazonaws.com:443',
+    'https://water-me-lb-842691727.eu-central-1.elb.amazonaws.com:444',
+    'https://water-me-lb-842691727.eu-central-1.elb.amazonaws.com:443',
     'http://water-me-lb-842691727.eu-central-1.elb.amazonaws.com',
     'http://water-me-lb-842691727.eu-central-1.elb.amazonaws.com',
+    'https://wmeautomation.de:443',
+    'https://wmeautomation.de:444',
+    'http://wmeautomation.de',
 ]
