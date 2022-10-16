@@ -255,6 +255,13 @@ class PostPhoto(generics.CreateAPIView, DeviceObjectMixin):
         photo.photo_status = PHOTO_READY
         photo.image = image_file
         photo.save()
+        if device.send_email:
+            user_ = User.objects.filter(announces=device).first()
+            email_ = user_.email
+            email_sender = WaterEmail()
+            email_message = 'Photo taken successfully'
+            email_subject = f'Photo with id: {photo.photo_id}'
+            email_sender.send_email(email_receiver=email_, subject=email_subject, message=email_message)
 
         return JsonResponse(status=status.HTTP_200_OK, data={'status': 'success'})
 
