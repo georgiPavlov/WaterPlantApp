@@ -192,7 +192,7 @@ class HealthCheck(generics.ListAPIView):
         return User.objects.all()
 
     def get(self, request, *args, **kwargs):
-        devices = Device.objects.filter(owner=request.user)
+        devices = Device.objects.all()
         connected_devices = devices.filter(is_connected=True)
         date_k = time_keeper.TimeKeeper(time_keeper.TimeKeeper.get_current_date())
         for connected_device in connected_devices:
