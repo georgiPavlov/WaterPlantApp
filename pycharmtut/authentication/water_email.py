@@ -38,11 +38,4 @@ class WaterEmail:
             server.sendmail(email_sender, email_receiver, msg.as_string())
 
 
-# x = WaterEmail()
-# x.send_email(email_receiver='georgi95.bg@gmail.com', subject='Completed registration', message='Say hello to your new '
-#                                                                                                'water.me account')
-# x.send_email(email_receiver='danielavladimirova88@gmail.com', subject='Completed registration', message='Say hello to your new '
-#                                                                                                'water.me account')
-
-
 

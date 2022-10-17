@@ -4,6 +4,9 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework_jwt.settings import api_settings
 from django.http import JsonResponse
+
+from gadget_communicator_pull.helpers import time_keeper
+from gadget_communicator_pull.models import Device
 from .serializers import TokenSerializer, UserSerializer
 from .water_email import WaterEmail
 import re
@@ -189,11 +192,32 @@ class HealthCheck(generics.ListAPIView):
         return User.objects.all()
 
     def get(self, request, *args, **kwargs):
+        devices = Device.objects.filter(owner=request.user)
+        connected_devices = devices.filter(is_connected=True)
+        date_k = time_keeper.TimeKeeper(time_keeper.TimeKeeper.get_current_date())
+        for connected_device in connected_devices:
+            current_time_minus_delta = date_k.get_current_time_minus_delta_seconds(15)
+            device_last_check = connected_device.health_relation.all().first()
+            device_last_time_check = date_k.get_time_from_time_string(device_last_check.status_time)
+            if device_last_time_check < current_time_minus_delta:
+                connected_device.is_connected = False
+                connected_device.save()
+                self.send_email_to_user(connected_device, f'device: {connected_device.device_id} disconnected', 'Error')
         return Response(
                 data={
                     "message": "There is no user with the registered username"
                 },
                 status=status.HTTP_200_OK)
+
+
+    def send_email_to_user(self, device, execution_message, execution_status):
+        if device.send_email:
+            user_ = User.objects.filter(announces=device).first()
+            email_ = user_.email
+            email_sender = WaterEmail()
+            email_message = execution_message
+            email_subject = f'Device Operation: {execution_status}'
+            email_sender.send_email(email_receiver=email_, subject=email_subject, message=email_message)
 
 
 class RegisterUsersView(generics.CreateAPIView):
