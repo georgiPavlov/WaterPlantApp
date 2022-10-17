@@ -232,6 +232,7 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
                 stored_check.save(update_fields=[STATUS_TIME])
 
             if not device.is_connected:
+                self.set_running_plans_to_false_on_connection(device)
                 device.is_connected = True
                 device.save()
                 self.send_email_to_user(device, f'device: {device.device_id} connected', 'Success')
@@ -247,6 +248,18 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
         print(f'device is>>  {device.send_email}')
         self.send_email_to_user(device, execution_message, execution_status)
         return JsonResponse(body_data)
+
+    def set_running_plans_to_false_on_connection(self, device):
+        plans_t = device.device_relation_t.all()
+        plans_m = device.device_relation_m.all()
+        for t in plans_t:
+            if t[IS_RUNNING]:
+                t[IS_RUNNING] = False
+                t.save(update_fields=[IS_RUNNING])
+        for m in plans_m:
+            if m[IS_RUNNING]:
+                m[IS_RUNNING] = False
+                m.save(update_fields=[IS_RUNNING])
 
     def send_email_to_user(self, device, execution_message, execution_status):
         if device.send_email:
