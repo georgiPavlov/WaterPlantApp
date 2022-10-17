@@ -12,4 +12,4 @@ class DeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
         fields = ['device_id', 'label', 'water_level', 'moisture_level', 'water_container_capacity', 'water_reset',
-                  'send_email']
+                  'send_email', 'is_connected']

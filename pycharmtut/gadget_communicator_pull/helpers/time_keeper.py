@@ -38,3 +38,10 @@ class TimeKeeper:
         time_change = datetime.timedelta(minutes=delta)
         time_with_delta = now - time_change
         return time_with_delta.strftime(TIME_FORMAT)
+
+    @staticmethod
+    def get_current_time_minus_delta_seconds(delta):
+        now = datetime.datetime.now()
+        time_change = datetime.timedelta(seconds=delta)
+        time_with_delta = now - time_change
+        return time_with_delta.strftime(TIME_FORMAT)

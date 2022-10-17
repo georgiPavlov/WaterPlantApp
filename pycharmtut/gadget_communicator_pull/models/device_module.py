@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from gadget_communicator_pull.models.basic_plan_module import BasicPlan
+from gadget_communicator_pull.models.health_check import HealthCheck
 from gadget_communicator_pull.models.photo_module import PhotoModule
 from gadget_communicator_pull.models.time_plan_module import TimePlan
 from gadget_communicator_pull.models.moisture_plan_module import MoisturePlan
@@ -13,6 +14,7 @@ class Device(models.Model):
     device_relation_t = models.ManyToManyField(TimePlan, related_name='devices_t')
     device_relation_m = models.ManyToManyField(MoisturePlan, related_name='devices_m')
     status_relation = models.ManyToManyField(Status, related_name='statuses')
+    health_relation = models.ManyToManyField(HealthCheck, related_name='health_check')
     photo_relation = models.ManyToManyField(PhotoModule, related_name='photos')
 
     device_id = models.CharField(max_length=50)
@@ -22,6 +24,7 @@ class Device(models.Model):
     water_container_capacity = models.IntegerField(default=2000)
     water_reset = models.BooleanField(default=False)
     send_email = models.BooleanField(default=False)
+    is_connected = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         return reverse("gadget_communicator_pull:device-info", kwargs={"id": self.id})

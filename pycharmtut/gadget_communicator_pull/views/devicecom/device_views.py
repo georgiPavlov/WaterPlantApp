@@ -12,10 +12,11 @@ from gadget_communicator_pull.models import Device
 from gadget_communicator_pull.models.device_module import WaterChart
 from gadget_communicator_pull.water_serializers.base_plan_serializer import BasePlanSerializer
 from gadget_communicator_pull.water_serializers.constants.water_constants import DEVICE, WATER_LEVEL, \
-    MOISTURE_LEVEL, EXECUTION_STATUS, EXECUTION_MESSAGE, IS_RUNNING
+    MOISTURE_LEVEL, EXECUTION_STATUS, EXECUTION_MESSAGE, IS_RUNNING, HEALTH_CHECK
 
 from gadget_communicator_pull.helpers.from_to_json_serializer import to_json_serializer, \
     remove_device_field_from_json, remove_has_been_executed_field, remove_is_running_field
+from gadget_communicator_pull.water_serializers.health_check import HealthCheckSerializer
 from gadget_communicator_pull.water_serializers.moisture_plan_serializer import MoisturePlanSerializer
 from gadget_communicator_pull.water_serializers.photo_serializer import PhotoSerializer
 from gadget_communicator_pull.water_serializers.status_serializer import StatusSerializer
@@ -215,16 +216,38 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
             return HttpResponse(status=status.HTTP_403_FORBIDDEN)
 
         print(body_data)
+        date_k = time_keeper.TimeKeeper(time_keeper.TimeKeeper.get_current_date())
+        if execution_message == HEALTH_CHECK:
+            stored_check = device.health_relation.all().first()
+            if stored_check is None:
+                health_serializer_el = HealthCheckSerializer(data=body_data)
+                health_check_el = health_serializer_el.save()
+                health_check_el.status_time = date_k.get_current_time()
+                health_check_el.save(update_fields=[STATUS_TIME])
+                device.health_relation.add(health_check_el)
+                device.save()
+            else:
+                stored_check.status_time = date_k.get_current_time()
+                stored_check.save(update_fields=[STATUS_TIME])
+
+            if not device.is_connected:
+                device.is_connected = True
+                device.save()
+                self.send_email_to_user(device, f'device: {device.device_id} connected', 'Success')
+            return JsonResponse(body_data)
         serializer = StatusSerializer(data=body_data)
         serializer.is_valid()
         status_el = serializer.save()
-        date_k = time_keeper.TimeKeeper(time_keeper.TimeKeeper.get_current_date())
         status_el.status_time = date_k.get_current_time()
         status_el.save(update_fields=[STATUS_TIME])
         print(type(status_el))
         device.status_relation.add(status_el)
         device.save()
         print(f'device is>>  {device.send_email}')
+        self.send_email_to_user(device, execution_message, execution_status)
+        return JsonResponse(body_data)
+
+    def send_email_to_user(self, device, execution_message, execution_status):
         if device.send_email:
             user_ = User.objects.filter(announces=device).first()
             email_ = user_.email
@@ -232,7 +255,6 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
             email_message = execution_message
             email_subject = f'Device Operation: {execution_status}'
             email_sender.send_email(email_receiver=email_, subject=email_subject, message=email_message)
-        return JsonResponse(body_data)
 
 
 class PostPhoto(generics.CreateAPIView, DeviceObjectMixin):
