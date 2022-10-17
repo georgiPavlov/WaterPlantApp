@@ -221,6 +221,7 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
             stored_check = device.health_relation.all().first()
             if stored_check is None:
                 health_serializer_el = HealthCheckSerializer(data=body_data)
+                health_serializer_el.is_valid()
                 health_check_el = health_serializer_el.save()
                 health_check_el.status_time = date_k.get_current_time()
                 health_check_el.save(update_fields=[STATUS_TIME])
