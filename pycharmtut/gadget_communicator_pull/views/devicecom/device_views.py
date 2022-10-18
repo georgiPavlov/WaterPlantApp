@@ -125,7 +125,6 @@ class PostWater(generics.CreateAPIView, DeviceObjectMixin):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request, *args, **kwargs):
-        print("intt")
         body_unicode = request.body.decode('utf-8')
         body_data = json.loads(body_unicode)
 

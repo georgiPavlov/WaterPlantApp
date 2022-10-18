@@ -45,20 +45,15 @@ class ApiCreatePlan(generics.CreateAPIView):
             return JsonResponse(status=status.HTTP_403_FORBIDDEN, data={'status': 'false', 'duplicate_plan': name})
 
         if PLAN_TYPE not in body_data:
-            print("key not in found in json")
             return JsonResponse(status=status.HTTP_404_NOT_FOUND,
                                 data={'status': 'false', 'plan_key_not_found': PLAN_TYPE})
 
         if any(DEVICE_ID not in s for s in body_data[DEVISES]):
-            print(type(body_data[DEVISES]))
-            print(body_data[DEVISES])
-            print("key not in found in json")
             return JsonResponse(status=status.HTTP_404_NOT_FOUND,
                                 data={'status': 'false', 'plan_key_not_found': DEVICE_ID})
 
         plan_type = body_data[PLAN_TYPE]
         if WATER_PLAN_BASIC == plan_type:
-            print(f'water type: {WATER_PLAN_BASIC}')
             body_data_copy = body_data.copy()
             json_without_device_field = remove_device_field_from_json(body_data_copy)
             serializer = BasePlanSerializer(data=json_without_device_field)
@@ -74,13 +69,21 @@ class ApiCreatePlan(generics.CreateAPIView):
             for id in range(devices_len):
                 device_obj = get_object_or_404(Device, device_id=body_data[DEVISES][id][DEVICE_ID])
                 if device_obj.owner != request.user:
+                    status_el.delete()
                     return JsonResponse(status=status.HTTP_404_NOT_FOUND,
                                         data={'status': 'false', 'message': "No such device for user"})
+
+                value_ = body_data['water_volume']
+                if device_obj.water_container_capacity >= value_ >= 10:
+                    status_el.delete()
+                    return self.return_bad_response(
+                        f'water_volume outside accepted boundaries: '
+                        f'{device_obj.water_container_capacity} <= {value_} <= 10')
+
                 status_el.devices_b.add(device_obj)
             status_el.save()
 
         elif WATER_PLAN_MOISTURE == plan_type:
-            print(f'water type: {WATER_PLAN_MOISTURE}')
             body_data_copy = body_data.copy()
             json_without_device_field = remove_device_field_from_json(body_data_copy)
             serializer = MoisturePlanSerializer(data=json_without_device_field)
@@ -96,14 +99,38 @@ class ApiCreatePlan(generics.CreateAPIView):
             for id in range(devices_len):
                 device_obj = get_object_or_404(Device, device_id=body_data[DEVISES][id][DEVICE_ID])
                 if device_obj.owner != request.user:
+                    status_el.delete()
                     return JsonResponse(status=status.HTTP_404_NOT_FOUND,
                                         data={'status': 'false', 'message': "No such device for user"})
+                key_ = 'water_volume'
+                value_ = body_data[key_]
+                if device_obj.water_container_capacity >= value_ >= 10:
+                    status_el.delete()
+                    return self.return_bad_response(
+                        f'{key_} outside accepted boundaries: '
+                        f'{device_obj.water_container_capacity} <= {value_} <= 10')
+
+                key_ = 'moisture_threshold'
+                value_ = body_data[key_]
+                if 100 >= value_ >= 1:
+                    status_el.delete()
+                    return self.return_bad_response(
+                        f'{key_} outside accepted boundaries: '
+                        f'100 <= {value_} <= 10')
+
+                key_ = 'check_interval'
+                value_ = body_data[key_]
+                one_day_in_minutes = 1440
+                if one_day_in_minutes >= value_ >= 1:
+                    status_el.delete()
+                    return self.return_bad_response(
+                        f'{key_} outside accepted boundaries: '
+                        f'{one_day_in_minutes} <= {value_} <= 1')
+
                 status_el.devices_m.add(device_obj)
             status_el.save()
 
         elif WATER_PLAN_TIME == plan_type:
-            print(f'water type: {WATER_PLAN_TIME}')
-
             if 'weekday_times' not in body_data:
                 print("key not in found in json")
                 return JsonResponse(status=status.HTTP_404_NOT_FOUND,
@@ -157,8 +184,15 @@ class ApiCreatePlan(generics.CreateAPIView):
             for id in range(devices_len):
                 device_obj = get_object_or_404(Device, device_id=body_data[DEVISES][id][DEVICE_ID])
                 if device_obj.owner != request.user:
+                    status_el.delete()
                     return JsonResponse(status=status.HTTP_404_NOT_FOUND,
                                         data={'status': 'false', 'message': "No such device for user"})
+                value_ = body_data['water_volume']
+                if device_obj.water_container_capacity >= value_ >= 10:
+                    status_el.delete()
+                    return self.return_bad_response(
+                        f'water_volume outside accepted boundaries: '
+                        f'{device_obj.water_container_capacity} <= {value_} <= 10')
                 status_el.devices_t.add(device_obj)
             status_el.save()
 
@@ -169,3 +203,9 @@ class ApiCreatePlan(generics.CreateAPIView):
             return JsonResponse(status=status.HTTP_404_NOT_FOUND,
                                 data={'status': 'false', 'unsupported_plan': plan_type})
         return JsonResponse(body_data)
+
+
+    def return_bad_response(self, message):
+        return JsonResponse(status=status.HTTP_400_BAD_REQUEST,
+                            data={'status': 'false',
+                                  'unsupported_format': message})

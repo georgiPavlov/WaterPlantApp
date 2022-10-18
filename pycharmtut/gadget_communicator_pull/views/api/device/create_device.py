@@ -16,10 +16,10 @@ class ApiCreateDevice(generics.CreateAPIView):
         device_id = body_data['device_id']
         device = Device.objects.filter(device_id=device_id).first()
         if device is not None:
-            return JsonResponse(status=status.HTTP_400_BAD_REQUEST,
-                                data={'status': 'false',
-                                      'unsupported_format': f'Device with id {device_id} already exists'})
-
+            return self.return_bad_response(f'Device with id {device_id} already exists')
+        water_container_capacity = body_data['water_container_capacity']
+        if water_container_capacity <= 100 and water_container_capacity <= 100000:
+            return self.return_bad_response(f'water_container_capacity outside accepted boundaries {water_container_capacity} ')
         serializer = DeviceSerializer(data=body_data)
         if serializer.is_valid():
             status_el = serializer.save()
@@ -32,3 +32,8 @@ class ApiCreateDevice(generics.CreateAPIView):
                                       'unsupported_format': 'Form is not valid'})
         print(type(status_el))
         return JsonResponse(body_data)
+
+    def return_bad_response(self, message):
+        return JsonResponse(status=status.HTTP_400_BAD_REQUEST,
+                            data={'status': 'false',
+                                  'unsupported_format': message})

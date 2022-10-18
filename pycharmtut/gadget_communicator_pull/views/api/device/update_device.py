@@ -26,10 +26,18 @@ class ApiUpdateDevice(generics.CreateAPIView):
                 device.label = body_data[key]
                 device.save(update_fields=['label'])
             elif key == 'water_level':
-                device.water_level = body_data[key]
+                value_ = body_data[key]
+                device.water_level = value_
+                if 100 >= value_ >= 1:
+                    return self.return_bad_response(
+                        f'water_level outside accepted boundaries {value_} ')
                 device.save(update_fields=['water_level'])
             elif key == 'water_container_capacity':
-                device.water_level = body_data[key]
+                value_ = body_data[key]
+                device.water_container_capacity = value_
+                if 100 <= value_ <= 100000:
+                    return self.return_bad_response(
+                        f'water_container_capacity outside accepted boundaries {value_} ')
                 device.save(update_fields=['water_container_capacity'])
             elif key == 'water_reset':
                 device.water_reset = body_data[key]
@@ -50,3 +58,8 @@ class ApiUpdateDevice(generics.CreateAPIView):
                 print("in")
                 return JsonResponse(status=status.HTTP_404_NOT_FOUND, data={'status': 'false', 'unsupported_field': key})
         return JsonResponse(body_data)
+
+    def return_bad_response(self, message):
+        return JsonResponse(status=status.HTTP_400_BAD_REQUEST,
+                            data={'status': 'false',
+                                  'unsupported_format': message})
