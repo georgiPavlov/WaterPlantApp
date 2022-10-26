@@ -253,11 +253,11 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
         plans_m = device.device_relation_m.all()
         for t in plans_t:
             if t[IS_RUNNING]:
-                t[IS_RUNNING] = False
+                t.is_running = False
                 t.save(update_fields=[IS_RUNNING])
         for m in plans_m:
             if m[IS_RUNNING]:
-                m[IS_RUNNING] = False
+                m.is_running = False
                 m.save(update_fields=[IS_RUNNING])
 
     def send_email_to_user(self, device, execution_message, execution_status):
