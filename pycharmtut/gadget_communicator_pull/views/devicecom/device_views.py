@@ -252,11 +252,11 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
         plans_t = device.device_relation_t.all()
         plans_m = device.device_relation_m.all()
         for t in plans_t:
-            if t[IS_RUNNING]:
+            if t.is_running:
                 t.is_running = False
                 t.save(update_fields=[IS_RUNNING])
         for m in plans_m:
-            if m[IS_RUNNING]:
+            if m.is_running:
                 m.is_running = False
                 m.save(update_fields=[IS_RUNNING])
 
