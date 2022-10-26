@@ -103,30 +103,30 @@ class ApiUpdatePlan(generics.CreateAPIView):
             elif key == PLAN_WATER_VOLUME:
                 key_ = PLAN_WATER_VOLUME
                 value_ = body_data[key_]
-                if device_obj.water_container_capacity >= value_ >= 10:
+                if device_obj.water_container_capacity < value_ < 10:
                     return return_bad_response(
                         f'{key_} outside accepted boundaries: '
-                        f'{device_obj.water_container_capacity} <= {value_} <= 10')
+                        f'{device_obj.water_container_capacity} < {value_} < 10')
                 plan.water_volume = body_data[key]
                 plan.save(update_fields=[PLAN_WATER_VOLUME])
             elif key == PLAN_MOISTURE_THRESHOLD and plan.plan_type == WATER_PLAN_MOISTURE:
                 print('moist plan')
                 key_ = 'moisture_threshold'
                 value_ = body_data[key_]
-                if 100 >= value_ >= 1:
+                if 100 < value_ < 1:
                     return return_bad_response(
                         f'{key_} outside accepted boundaries: '
-                        f'100 <= {value_} <= 10')
+                        f'100 < {value_} < 10')
                 plan.moisture_threshold = body_data[key]
                 plan.save(update_fields=[PLAN_MOISTURE_THRESHOLD])
             elif key == PLAN_MOISTURE_CHECK_INTERVAL and plan.plan_type == WATER_PLAN_MOISTURE:
                 key_ = 'check_interval'
                 value_ = body_data[key_]
                 one_day_in_minutes = 1440
-                if one_day_in_minutes >= value_ >= 1:
+                if one_day_in_minutes < value_ < 1:
                     return return_bad_response(
                         f'{key_} outside accepted boundaries: '
-                        f'{one_day_in_minutes} <= {value_} <= 1')
+                        f'{one_day_in_minutes} < {value_} < 1')
                 plan.check_interval = body_data[key]
                 plan.save(update_fields=[PLAN_MOISTURE_CHECK_INTERVAL])
             elif key == PLAN_MOISTURE_WEEKDAY_TIMES and plan.plan_type == WATER_PLAN_TIME:

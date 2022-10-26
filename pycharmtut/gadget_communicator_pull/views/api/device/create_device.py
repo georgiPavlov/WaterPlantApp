@@ -18,7 +18,7 @@ class ApiCreateDevice(generics.CreateAPIView):
         if device is not None:
             return self.return_bad_response(f'Device with id {device_id} already exists')
         water_container_capacity = body_data['water_container_capacity']
-        if water_container_capacity <= 100 and water_container_capacity <= 100000:
+        if 100 > water_container_capacity > 100000:
             return self.return_bad_response(f'water_container_capacity outside accepted boundaries {water_container_capacity} ')
         serializer = DeviceSerializer(data=body_data)
         if serializer.is_valid():

@@ -35,7 +35,7 @@ class ApiUpdateDevice(generics.CreateAPIView):
             elif key == 'water_container_capacity':
                 value_ = body_data[key]
                 device.water_container_capacity = value_
-                if 100 <= value_ <= 100000:
+                if 100000 < value_ < 100:
                     return self.return_bad_response(
                         f'water_container_capacity outside accepted boundaries {value_} ')
                 device.save(update_fields=['water_container_capacity'])
