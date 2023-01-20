@@ -6,7 +6,7 @@ import json
 from rest_framework.generics import get_object_or_404
 from gadget_communicator_pull.constants.photo_constants import PHOTO_RUNNING, PHOTO_READY, PHOTO_CREATED
 from gadget_communicator_pull.constants.water_constants import DEVICE_ID, PHOTO_ID, IMAGE_FILE, WATER_PLAN_MOISTURE, \
-    WATER_PLAN_TIME, DELETE_RUNNING_PLAN, STATUS_TIME
+    WATER_PLAN_TIME, DELETE_RUNNING_PLAN, STATUS_TIME, PLAN_TYPE
 from gadget_communicator_pull.helpers import time_keeper
 from gadget_communicator_pull.models import Device
 from gadget_communicator_pull.models.device_module import WaterChart
@@ -62,6 +62,7 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
 
         plan_json = None
         plan = None
+        delete_plan = False
 
         if device.device_relation_b:
             print('Basic plan scenario')
@@ -79,6 +80,10 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
                 plan = filtrated_plans.first()
                 serializer = MoisturePlanSerializer(instance=plan)
                 plan_json = to_json_serializer(serializer)
+                if plan.plan_type == DELETE_RUNNING_PLAN:
+                    plan.plan_type = WATER_PLAN_MOISTURE
+                    plan.save(update_fields=[PLAN_TYPE])
+                    delete_plan = True
         if device.device_relation_t:
             print('Time plan scenario')
             plans = device.device_relation_t.all()
@@ -87,7 +92,10 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
                 plan = filtrated_plans.first()
                 serializer = TimePlanSerializer(instance=plan)
                 plan_json = to_json_serializer(serializer)
-
+                if plan.plan_type == DELETE_RUNNING_PLAN:
+                    plan.plan_type = WATER_PLAN_TIME
+                    plan.save(update_fields=[PLAN_TYPE])
+                    delete_plan = True
         if plan_json is None:
             return HttpResponse(status=status.HTTP_204_NO_CONTENT)
         plan.has_been_executed = True
@@ -96,8 +104,9 @@ class GetPlan(generics.GenericAPIView, DeviceObjectMixin):
                 or plan.plan_type == DELETE_RUNNING_PLAN:
             self.set_is_running_plan_to_false(device)
             if plan.plan_type == WATER_PLAN_MOISTURE or plan.plan_type == WATER_PLAN_TIME:
-                plan.is_running = True
-                plan.save()
+                if not delete_plan:
+                    plan.is_running = True
+                    plan.save()
             plan_json = remove_is_running_field(json_obj=plan_json)
         print(type(plan_json))
         json_without_device_field = remove_device_field_from_json(plan_json)
