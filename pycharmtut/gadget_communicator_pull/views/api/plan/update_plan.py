@@ -95,8 +95,8 @@ class ApiUpdatePlan(generics.CreateAPIView):
                 print("basic plan does not have such field")
                 return JsonResponse(status=status.HTTP_403_FORBIDDEN,
                                     data={'status': 'true', 'message': 'basic plan does not have such field'})
-        # plan_to_stop = body_data[PLAN_TO_STOP]
-        # device_obj = get_device_for_name(plan_to_stop, devices=devices)
+        plan_name = body_data[PLAN_NAME]
+        device_obj = get_device_for_name(plan_name, devices=devices)
         for key in body_data:
             if key == PLAN_TO_STOP:
                 print("true..")
