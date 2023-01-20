@@ -112,7 +112,7 @@ class ApiCreatePlan(generics.CreateAPIView):
 
                 key_ = 'moisture_threshold'
                 value_ = body_data[key_]
-                if 100 < value_ or value_ < 1:
+                if 100 < value_ or value_ < 0:
                     status_el.delete()
                     return self.return_bad_response(
                         f'{key_} outside accepted boundaries: '
