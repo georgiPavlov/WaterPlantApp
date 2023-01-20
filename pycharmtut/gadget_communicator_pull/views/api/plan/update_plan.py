@@ -113,7 +113,7 @@ class ApiUpdatePlan(generics.CreateAPIView):
                 print('moist plan')
                 key_ = 'moisture_threshold'
                 value_ = body_data[key_]
-                if 100 < value_ < 1:
+                if 100 < value_ or value_ < 1:
                     return return_bad_response(
                         f'{key_} outside accepted boundaries: '
                         f'100 < {value_} < 10')

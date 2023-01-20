@@ -74,11 +74,11 @@ class ApiCreatePlan(generics.CreateAPIView):
                                         data={'status': 'false', 'message': "No such device for user"})
 
                 value_ = body_data['water_volume']
-                if device_obj.water_container_capacity >= value_ >= 10:
+                if device_obj.water_container_capacity < value_ or value_ < 10:
                     status_el.delete()
                     return self.return_bad_response(
                         f'water_volume outside accepted boundaries: '
-                        f'{device_obj.water_container_capacity} <= {value_} >= 10')
+                        f'{device_obj.water_container_capacity} < {value_} > 10')
 
                 status_el.devices_b.add(device_obj)
             status_el.save()
@@ -104,28 +104,28 @@ class ApiCreatePlan(generics.CreateAPIView):
                                         data={'status': 'false', 'message': "No such device for user"})
                 key_ = 'water_volume'
                 value_ = body_data[key_]
-                if device_obj.water_container_capacity >= value_ >= 10:
+                if device_obj.water_container_capacity < value_ or value_  < 10:
                     status_el.delete()
                     return self.return_bad_response(
                         f'{key_} outside accepted boundaries: '
-                        f'{device_obj.water_container_capacity} <= {value_} >= 10')
+                        f'{device_obj.water_container_capacity} < {value_} > 10')
 
                 key_ = 'moisture_threshold'
                 value_ = body_data[key_]
-                if 100 >= value_ >= 1:
+                if 100 < value_ or value_ < 1:
                     status_el.delete()
                     return self.return_bad_response(
                         f'{key_} outside accepted boundaries: '
-                        f'100 <= {value_} >= 10')
+                        f'100 < {value_} > 10')
 
                 key_ = 'check_interval'
                 value_ = body_data[key_]
                 one_day_in_minutes = 1440
-                if one_day_in_minutes >= value_ >= 1:
+                if one_day_in_minutes < value_ or value_ < 1:
                     status_el.delete()
                     return self.return_bad_response(
                         f'{key_} outside accepted boundaries: '
-                        f'{one_day_in_minutes} <= {value_} >= 1')
+                        f'{one_day_in_minutes} < {value_} > 1')
 
                 status_el.devices_m.add(device_obj)
             status_el.save()
@@ -188,11 +188,11 @@ class ApiCreatePlan(generics.CreateAPIView):
                     return JsonResponse(status=status.HTTP_404_NOT_FOUND,
                                         data={'status': 'false', 'message': "No such device for user"})
                 value_ = body_data['water_volume']
-                if device_obj.water_container_capacity >= value_ >= 10:
+                if device_obj.water_container_capacity < value_ or value_ < 10:
                     status_el.delete()
                     return self.return_bad_response(
                         f'water_volume outside accepted boundaries: '
-                        f'{device_obj.water_container_capacity} <= {value_} >= 10')
+                        f'{device_obj.water_container_capacity} < {value_} > 10')
                 status_el.devices_t.add(device_obj)
             status_el.save()
 
