@@ -30,7 +30,7 @@ from run.common.time_keeper import TimeKeeper
 class TestHTTPAPIIntegration:
     """Test HTTP API integration between WaterPlantApp and WaterPlantOperator."""
     
-    BASE_URL = 'http://localhost:8000'
+    BASE_URL = 'http://localhost:8001'
     
     @pytest.fixture(autouse=True)
     def setup_test_environment(self):
@@ -485,7 +485,7 @@ class TestHTTPAPIIntegration:
 class TestCornerCasesHTTP:
     """Test corner cases in HTTP API integration."""
     
-    BASE_URL = 'http://localhost:8000'
+    BASE_URL = 'http://localhost:8001'
     
     def test_large_payload_handling(self):
         """Test handling of large payloads."""
