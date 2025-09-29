@@ -12,7 +12,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from cross_integration_tests.conftest import CrossIntegrationTestCase
+from conftest import CrossIntegrationTestCase
 
 
 class TestDeviceAPI(CrossIntegrationTestCase):

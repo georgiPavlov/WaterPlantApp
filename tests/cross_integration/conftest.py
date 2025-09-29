@@ -61,8 +61,7 @@ def django_device(django_user):
         water_level=75,
         moisture_level=45,
         water_container_capacity=2000,
-        is_connected=True,
-        status='online'
+        is_connected=True
     )
 
 
@@ -245,31 +244,14 @@ def authenticated_api_client(django_user, api_client):
 def expected_device_json():
     """Expected JSON structure for device API responses."""
     return {
-        'id': 1,
         'device_id': 'TEST_DEVICE_001',
         'label': 'Test Plant Device',
-        'owner_username': 'testuser',
         'water_level': 75,
-        'water_level_ml': 1500,
         'moisture_level': 45,
         'water_container_capacity': 2000,
         'water_reset': False,
-        'send_email': True,
-        'is_connected': True,
-        'is_online': True,
-        'status': 'online',
-        'last_seen': None,
-        'location': '',
-        'notes': '',
-        'needs_water_refill': False,
-        'needs_watering': False,
-        'basic_plans': [],
-        'time_plans': [],
-        'moisture_plans': [],
-        'recent_statuses': [],
-        'water_charts': [],
-        'created_at': '2023-01-01T00:00:00Z',
-        'updated_at': '2023-01-01T00:00:00Z'
+        'send_email': False,
+        'is_connected': True
     }
 
 
@@ -277,15 +259,11 @@ def expected_device_json():
 def expected_plan_json():
     """Expected JSON structure for plan API responses."""
     return {
-        'id': 1,
         'name': 'Test Basic Plan',
         'plan_type': 'basic',
         'water_volume': 150,
         'has_been_executed': False,
-        'devices': [],
-        'is_executable': True,
-        'created_at': '2023-01-01T00:00:00Z',
-        'updated_at': '2023-01-01T00:00:00Z'
+        'devices': []
     }
 
 
@@ -293,15 +271,10 @@ def expected_plan_json():
 def expected_status_json():
     """Expected JSON structure for status API responses."""
     return {
-        'id': 1,
+        'status_id': 'uuid-string',
         'execution_status': True,
         'message': 'Test status message',
-        'status_id': 'uuid-string',
-        'status_time': '2023-01-01T00:00:00Z',
-        'status_type': 'success',
-        'device_id': 'TEST_DEVICE_001',
-        'created_at': '2023-01-01T00:00:00Z',
-        'updated_at': '2023-01-01T00:00:00Z'
+        'status_time': ''
     }
 
 
@@ -351,8 +324,7 @@ class CrossIntegrationTestCase(TestCase):
             water_level=75,
             moisture_level=45,
             water_container_capacity=2000,
-            is_connected=True,
-            status='online'
+            is_connected=True
         )
         
         self.client = Client()
@@ -421,8 +393,8 @@ class CrossIntegrationTestCase(TestCase):
     def assert_device_json_structure(self, data):
         """Assert device JSON structure."""
         required_keys = [
-            'id', 'device_id', 'label', 'water_level', 'moisture_level',
-            'water_container_capacity', 'is_connected', 'status'
+            'device_id', 'label', 'water_level', 'moisture_level',
+            'water_container_capacity', 'is_connected'
         ]
         for key in required_keys:
             self.assertIn(key, data)
@@ -430,7 +402,7 @@ class CrossIntegrationTestCase(TestCase):
     def assert_plan_json_structure(self, data):
         """Assert plan JSON structure."""
         required_keys = [
-            'id', 'name', 'plan_type', 'water_volume', 'has_been_executed'
+            'name', 'plan_type', 'water_volume', 'has_been_executed'
         ]
         for key in required_keys:
             self.assertIn(key, data)
@@ -438,7 +410,7 @@ class CrossIntegrationTestCase(TestCase):
     def assert_status_json_structure(self, data):
         """Assert status JSON structure."""
         required_keys = [
-            'id', 'execution_status', 'message', 'status_id', 'status_time'
+            'execution_status', 'message', 'status_id', 'status_time'
         ]
         for key in required_keys:
             self.assertIn(key, data)

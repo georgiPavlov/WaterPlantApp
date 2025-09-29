@@ -6,7 +6,7 @@ from gadget_communicator_pull.models import Status
 class StatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = Status
-        fields = ['status_id', 'execution_status', 'message', 'status_time', 'status_type', 'device_id']
+        fields = ['status_id', 'execution_status', 'message', 'status_time']
 
     def create(self, validated_data):
         status_t = Status.objects.create(**validated_data)

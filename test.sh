@@ -31,6 +31,10 @@ TOTAL_TESTS=0
 PASSED_TESTS=0
 FAILED_TESTS=0
 
+# Server management variables
+SERVER_PID=""
+SERVER_STARTED_BY_SCRIPT=false
+
 # Run test suite and capture results
 run_test_suite() {
     local test_name="$1"
@@ -59,29 +63,123 @@ run_test_suite() {
     TOTAL_TESTS=$((TOTAL_TESTS + expected_count))
 }
 
+# Kill existing Django processes
+kill_existing_processes() {
+    print_status "Checking for existing Django processes..."
+    
+    if pgrep -f "manage.py runserver" > /dev/null; then
+        print_warning "Found existing Django processes. Stopping them..."
+        pkill -f "manage.py runserver" || true
+        sleep 2
+    fi
+    
+    print_success "No conflicting processes found"
+}
+
+# Check if setup was completed
+check_setup() {
+    print_status "Checking setup..."
+    
+    # Check if Django project exists
+    if [ ! -d "pycharmtut" ]; then
+        print_error "Django project not found. Please run ./setup.sh first"
+        exit 1
+    fi
+    
+    # Always ensure database is up to date
+    print_status "Ensuring database is up to date..."
+    cd pycharmtut
+    python3 manage.py makemigrations --settings=pycharmtut.test_settings
+    python3 manage.py migrate --settings=pycharmtut.test_settings
+    cd ..
+    
+    print_success "Setup check complete"
+}
+
 # Check if Django server is running
 check_django_server() {
-    print_status "Checking if Django server is running..."
+    local verbose=${1:-true}
     
-    if curl -s -o /dev/null -w "%{http_code}" http://localhost:8001/admin/ | grep -q "200\|302"; then
-        print_success "Django server is running"
+    if [ "$verbose" = true ]; then
+        print_status "Checking if Django server is running..."
+    fi
+    
+    # Try multiple endpoints to check server health
+    local server_healthy=false
+    
+    for endpoint in "/admin/" "/api-token-auth/" "/gadget_communicator_pull/api/list_devices"; do
+        local status_code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:8001$endpoint" 2>/dev/null || echo "000")
+        if [[ "$status_code" =~ ^[23][0-9][0-9]$ ]]; then
+            server_healthy=true
+            break
+        fi
+    done
+    
+    if [ "$server_healthy" = true ]; then
+        if [ "$verbose" = true ]; then
+            print_success "Django server is running"
+        fi
         return 0
     else
-        print_warning "Django server not running. Starting it..."
-        cd pycharmtut
-        python3 manage.py runserver 8001 --settings=pycharmtut.test_settings &
-        SERVER_PID=$!
-        cd ..
+        if [ "$verbose" = true ]; then
+            print_warning "Django server not running. Starting it..."
+        fi
+        return 1
+    fi
+}
+
+# Start Django server
+start_django_server() {
+    print_status "Starting Django development server..."
+    
+    cd pycharmtut
+    
+    # Start server in background
+    python3 manage.py runserver 8001 --settings=pycharmtut.test_settings > /dev/null 2>&1 &
+    SERVER_PID=$!
+    SERVER_STARTED_BY_SCRIPT=true
+    
+    cd ..
+    
+    # Wait for server to start with retries
+    local max_attempts=10
+    local attempt=1
+    
+    while [ $attempt -le $max_attempts ]; do
+        sleep 2
+        print_status "Waiting for server to start... (attempt $attempt/$max_attempts)"
         
-        # Wait for server to start
-        sleep 5
-        
-        if curl -s -o /dev/null -w "%{http_code}" http://localhost:8001/admin/ | grep -q "200\|302"; then
-            print_success "Django server started successfully"
+        if check_django_server false; then
+            print_success "Django server started successfully (PID: $SERVER_PID)"
             return 0
-        else
-            print_error "Failed to start Django server"
+        fi
+        
+        # Check if process is still running
+        if ! kill -0 $SERVER_PID 2>/dev/null; then
+            print_error "Server process died unexpectedly"
             return 1
+        fi
+        
+        attempt=$((attempt + 1))
+    done
+    
+    print_error "Failed to start Django server after $max_attempts attempts"
+    return 1
+}
+
+# Ensure Django server is running
+ensure_django_server() {
+    if ! check_django_server; then
+        kill_existing_processes
+        check_setup
+        
+        # Create test user for authentication before starting server
+        print_status "Creating test user for authentication..."
+        python3 create_test_user.py
+        
+        if ! start_django_server; then
+            print_error "Cannot run tests without Django server"
+            exit 1
         fi
     fi
 }
@@ -124,7 +222,7 @@ run_authenticated_api_tests() {
     
     run_test_suite "Authenticated API Tests" \
         "python3 -m pytest test_authenticated_api.py -v" \
-        5
+        12
     
     cd ../..
 }
@@ -204,7 +302,23 @@ generate_test_report() {
 # Cleanup function
 cleanup() {
     print_status "Cleaning up..."
-    pkill -f "manage.py runserver" || true
+    
+    # Only kill server if we started it
+    if [ "$SERVER_STARTED_BY_SCRIPT" = true ] && [ -n "$SERVER_PID" ]; then
+        print_status "Stopping Django server (PID: $SERVER_PID)..."
+        kill $SERVER_PID 2>/dev/null || true
+        sleep 2
+        
+        # Force kill if still running
+        if kill -0 $SERVER_PID 2>/dev/null; then
+            print_warning "Force killing server process..."
+            kill -9 $SERVER_PID 2>/dev/null || true
+        fi
+    fi
+    
+    # Clean up any remaining Django processes
+    pkill -f "manage.py runserver" 2>/dev/null || true
+    
     print_success "Cleanup complete"
 }
 
@@ -222,11 +336,8 @@ main() {
         exit 1
     fi
     
-    # Check Django server
-    if ! check_django_server; then
-        print_error "Cannot run tests without Django server"
-        exit 1
-    fi
+    # Ensure Django server is running
+    ensure_django_server
     
     # Run test suites
     run_operator_compatibility_tests

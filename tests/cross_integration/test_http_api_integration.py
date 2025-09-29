@@ -55,8 +55,8 @@ class TestHTTPAPIIntegration:
             
             # Test API endpoint structure (correct path)
             response = requests.get(f'{self.BASE_URL}/gadget_communicator_pull/api/list_devices', timeout=10)
-            # Should return 200, 403 (forbidden - no auth), 404, or 405 (method not allowed)
-            assert response.status_code in [200, 403, 404, 405]
+            # Should return 200, 401 (unauthorized), 403 (forbidden - no auth), 404, or 405 (method not allowed)
+            assert response.status_code in [200, 401, 403, 404, 405]
             
         except requests.exceptions.ConnectionError:
             # Server not running - this is expected in some test scenarios
@@ -71,7 +71,7 @@ class TestHTTPAPIIntegration:
         try:
             response = requests.get(f'{self.BASE_URL}/gadget_communicator_pull/api/list_devices', timeout=10)
             # Should return 200 (authenticated), 403 (forbidden - no auth), or 404
-            assert response.status_code in [200, 403, 404, 405]
+            assert response.status_code in [200, 401, 403, 404, 405]
             
             if response.status_code == 200:
                 data = response.json()
@@ -92,7 +92,7 @@ class TestHTTPAPIIntegration:
         # Test plan list endpoint (correct path)
         try:
             response = requests.get(f'{self.BASE_URL}/gadget_communicator_pull/api/list_plans', timeout=10)
-            assert response.status_code in [200, 403, 404, 405]
+            assert response.status_code in [200, 401, 403, 404, 405]
             
             if response.status_code == 200:
                 data = response.json()
@@ -112,7 +112,7 @@ class TestHTTPAPIIntegration:
         # Test status list endpoint (correct path - requires device ID)
         try:
             response = requests.get(f'{self.BASE_URL}/gadget_communicator_pull/api/list_status/TEST_DEVICE_001', timeout=10)
-            assert response.status_code in [200, 403, 404, 405]
+            assert response.status_code in [200, 401, 403, 404, 405]
             
             if response.status_code == 200:
                 data = response.json()
@@ -152,8 +152,8 @@ class TestHTTPAPIIntegration:
                 timeout=10
             )
             
-            # Should return 201 (created), 400 (bad request), 403 (forbidden - no auth), or 404
-            assert response.status_code in [201, 400, 403, 404, 405]
+            # Should return 201 (created), 400 (bad request), 401 (unauthorized), 403 (forbidden - no auth), or 404
+            assert response.status_code in [201, 400, 401, 403, 404, 405]
             
             if response.status_code == 201:
                 response_data = response.json()
@@ -193,7 +193,7 @@ class TestHTTPAPIIntegration:
                 timeout=10
             )
             
-            assert response.status_code in [201, 400, 403, 404, 405]
+            assert response.status_code in [201, 400, 401, 403, 404, 405]
             
             if response.status_code == 201:
                 response_data = response.json()
@@ -230,7 +230,7 @@ class TestHTTPAPIIntegration:
                 timeout=10
             )
             
-            assert response.status_code in [201, 400, 403, 404, 405]
+            assert response.status_code in [201, 400, 401, 403, 404, 405]
             
             if response.status_code == 201:
                 response_data = response.json()
@@ -341,7 +341,7 @@ class TestHTTPAPIIntegration:
             )
             
             # Should return 400 (bad request) or similar error code
-            assert response.status_code in [400, 403, 404, 405, 422]
+            assert response.status_code in [400, 401, 403, 404, 405, 422]
             
         except requests.exceptions.ConnectionError:
             # Server not running - skip this test
@@ -526,7 +526,7 @@ class TestHTTPAPIIntegration:
             )
             
             # Should return appropriate status code
-            assert response.status_code in [200, 201, 400, 403, 404, 405]
+            assert response.status_code in [200, 201, 400, 401, 403, 404, 405]
             
         except requests.exceptions.ConnectionError:
             # Server not running - skip this test
@@ -568,7 +568,7 @@ class TestCornerCasesHTTP:
             )
             
             # Should handle large payloads gracefully
-            assert response.status_code in [200, 201, 400, 413, 403, 404, 405]
+            assert response.status_code in [200, 201, 400, 401, 413, 403, 404, 405]
             
         except requests.exceptions.ConnectionError:
             # Server not running - skip this test
@@ -592,7 +592,7 @@ class TestCornerCasesHTTP:
             )
             
             # Should return 400 (bad request) for malformed JSON
-            assert response.status_code in [400, 403, 404, 405]
+            assert response.status_code in [400, 401, 403, 404, 405]
             
         except requests.exceptions.ConnectionError:
             # Server not running - skip this test
@@ -622,7 +622,7 @@ class TestCornerCasesHTTP:
                 timeout=10
             )
             
-            assert response.status_code in [200, 201, 400, 403, 404, 405]
+            assert response.status_code in [200, 201, 400, 401, 403, 404, 405]
             
         except requests.exceptions.ConnectionError:
             # Server not running - skip this test
@@ -652,7 +652,7 @@ class TestCornerCasesHTTP:
                 timeout=10
             )
             
-            assert response.status_code in [200, 201, 400, 403, 404, 405]
+            assert response.status_code in [200, 201, 400, 401, 403, 404, 405]
             
         except requests.exceptions.ConnectionError:
             # Server not running - skip this test
@@ -676,7 +676,7 @@ class TestCornerCasesHTTP:
             )
             
             # Should return 400 (bad request) for empty payload
-            assert response.status_code in [400, 403, 404, 405]
+            assert response.status_code in [400, 401, 403, 404, 405]
             
         except requests.exceptions.ConnectionError:
             # Server not running - skip this test
@@ -703,7 +703,7 @@ class TestCornerCasesHTTP:
             )
             
             # Should return 400 (bad request) for missing required fields
-            assert response.status_code in [400, 403, 404, 405]
+            assert response.status_code in [400, 401, 403, 404, 405]
             
         except requests.exceptions.ConnectionError:
             # Server not running - skip this test

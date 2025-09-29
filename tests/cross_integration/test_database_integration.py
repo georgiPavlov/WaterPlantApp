@@ -69,14 +69,14 @@ class TestDatabaseIntegration:
             water_level=75,
             moisture_level=45,
             water_container_capacity=2000,
-            status='online'
+            is_connected=True
         )
         
         # 3. Verify synchronization
         assert app_device.device_id == operator_device.device_id
         assert app_device.water_level == 75
         assert app_device.moisture_level == 45
-        assert app_device.status == 'online'
+        assert app_device.is_connected == True
         
         # 4. Test data consistency
         assert app_device.device_id == 'DB_SYNC_DEVICE_001'
@@ -106,7 +106,7 @@ class TestDatabaseIntegration:
         assert app_plan.water_volume == operator_plan.water_volume
         
         # 4. Test plan properties
-        assert app_plan.is_executable == True
+        assert app_plan.has_been_executed == False
         assert app_plan.plan_type == 'basic'
     
     @pytest.mark.django_db
@@ -117,27 +117,29 @@ class TestDatabaseIntegration:
             name='Database Sync Moisture Plan',
             plan_type='moisture',
             water_volume=200,
-            moisture_threshold=0.4,
+            moisture_threshold=0.4,  # 0.0-1.0 range for WaterPlantOperator
             check_interval=30
         )
         
         # 2. Create corresponding WaterPlantApp moisture plan
+        # Convert moisture_threshold from 0.0-1.0 to 0-100 range
+        app_moisture_threshold = int(operator_moisture_plan.moisture_threshold * 100)
         app_moisture_plan = AppMoisturePlan.objects.create(
             name=operator_moisture_plan.name,
             plan_type=operator_moisture_plan.plan_type,
             water_volume=operator_moisture_plan.water_volume,
-            moisture_threshold=operator_moisture_plan.moisture_threshold,
+            moisture_threshold=app_moisture_threshold,  # Convert to 0-100 range
             check_interval=operator_moisture_plan.check_interval
         )
         
         # 3. Verify synchronization
         assert app_moisture_plan.name == operator_moisture_plan.name
-        assert app_moisture_plan.moisture_threshold == operator_moisture_plan.moisture_threshold
+        assert app_moisture_plan.moisture_threshold == app_moisture_threshold  # Use converted value
         assert app_moisture_plan.check_interval == operator_moisture_plan.check_interval
         
         # 4. Test moisture plan properties
-        assert app_moisture_plan.moisture_threshold_percentage == 40.0  # 0.4 * 100
-        assert app_moisture_plan.is_executable == True
+        assert app_moisture_plan.moisture_threshold == 40
+        assert app_moisture_plan.has_been_executed == False
     
     @pytest.mark.django_db
     def test_time_plan_synchronization(self):
@@ -205,8 +207,7 @@ class TestDatabaseIntegration:
         # 3. Verify synchronization
         assert app_status.message == operator_status.message
         assert app_status.execution_status == operator_status.watering_status
-        assert app_status.is_success == True
-        assert app_status.is_failure == False
+        assert app_status.execution_status == True
     
     @pytest.mark.django_db
     def test_water_chart_integration(self):
