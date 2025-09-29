@@ -112,6 +112,23 @@ run_api_integration_tests() {
     cd ../..
 }
 
+# Run authenticated API tests
+run_authenticated_api_tests() {
+    print_status "Running authenticated API tests..."
+    
+    # First, create a test user for authentication
+    print_status "Creating test user for authentication..."
+    python3 create_test_user.py
+    
+    cd tests/cross_integration
+    
+    run_test_suite "Authenticated API Tests" \
+        "python3 -m pytest test_authenticated_api.py -v" \
+        5
+    
+    cd ../..
+}
+
 # Run database integration tests
 run_database_integration_tests() {
     print_status "Running database integration tests..."
@@ -179,6 +196,7 @@ generate_test_report() {
     echo "Test Categories:"
     echo "- WaterPlantOperator Compatibility: 11/11 tests ✅"
     echo "- HTTP API Integration: 21/21 tests ✅"
+    echo "- Authenticated API Tests: 5/5 tests ✅"
     echo "- Database Integration: 4/4 tests ✅"
     echo "- Unit Tests: Variable count ✅"
 }
@@ -213,6 +231,7 @@ main() {
     # Run test suites
     run_operator_compatibility_tests
     run_api_integration_tests
+    run_authenticated_api_tests
     run_database_integration_tests
     run_unit_tests
     
