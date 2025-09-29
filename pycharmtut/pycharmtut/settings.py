@@ -25,7 +25,7 @@ SECRET_KEY = 'aaaaaaaaaaaaaaaaaaaaaaaaaa'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["wmeautomation.de", "18.184.36.52", "192.168.1.20", "127.0.0.1", '192.168.1.31', '192.168.1.17',
+ALLOWED_HOSTS = ["localhost", "wmeautomation.de", "18.184.36.52", "192.168.1.20", "127.0.0.1", '192.168.1.31', '192.168.1.17',
                  '172.31.44.13', 'ip-172-31-44-13.eu-central-1.compute.internal',
                  'water-me-lb-842691727.eu-central-1.elb.amazonaws.com']
 
@@ -78,23 +78,23 @@ WSGI_APPLICATION = 'pycharmtut.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-# DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'admin_water_me',
-        'USER': 'postgres',
-        'PASSWORD': '',
-        'HOST': 'database-1.cfxrviloeruo.eu-central-1.rds.amazonaws.com',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'admin_water_me',
+#         'USER': 'postgres',
+#         'PASSWORD': '',
+#         'HOST': 'database-1.cfxrviloeruo.eu-central-1.rds.amazonaws.com',
+#         'PORT': '5432',
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -178,9 +178,26 @@ SIMPLE_JWT = {
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
 
-CSRF_TRUSTED_ORIGINS = ['*']
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000', 'http://localhost:3001', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001']
 CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
     'http://192.168.1.2:8081',
     'http://192.168.0.209:8081',
     'http://192.168.1.5:8081',
