@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework_simplejwt.settings import api_settings
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import JsonResponse
 
 from gadget_communicator_pull.helpers import time_keeper
@@ -12,8 +12,7 @@ from .water_email import WaterEmail
 import re
 import uuid
 
-# Get the JWT settings
-from rest_framework_simplejwt.tokens import RefreshToken
+# JWT token generation
 
 
 class LoginView(generics.CreateAPIView):

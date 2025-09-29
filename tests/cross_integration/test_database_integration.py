@@ -55,6 +55,8 @@ class TestDatabaseIntegration:
             
             yield
     
+    @pytest.mark.django_db
+    @pytest.mark.django_db
     def test_device_synchronization(self):
         """Test device synchronization between systems."""
         # 1. Create WaterPlantOperator device
@@ -81,6 +83,7 @@ class TestDatabaseIntegration:
         assert app_device.label == 'Database Sync Test Device'
         assert app_device.water_container_capacity == 2000
     
+    @pytest.mark.django_db
     def test_basic_plan_synchronization(self):
         """Test basic plan synchronization between systems."""
         # 1. Create WaterPlantOperator plan
@@ -106,6 +109,7 @@ class TestDatabaseIntegration:
         assert app_plan.is_executable == True
         assert app_plan.plan_type == 'basic'
     
+    @pytest.mark.django_db
     def test_moisture_plan_synchronization(self):
         """Test moisture plan synchronization between systems."""
         # 1. Create WaterPlantOperator moisture plan
@@ -135,6 +139,7 @@ class TestDatabaseIntegration:
         assert app_moisture_plan.moisture_threshold_percentage == 40.0  # 0.4 * 100
         assert app_moisture_plan.is_executable == True
     
+    @pytest.mark.django_db
     def test_time_plan_synchronization(self):
         """Test time plan synchronization between systems."""
         # 1. Create WaterPlantOperator time plan
@@ -182,6 +187,7 @@ class TestDatabaseIntegration:
         assert 'wednesday' in weekday_times
         assert 'friday' in weekday_times
     
+    @pytest.mark.django_db
     def test_status_synchronization(self):
         """Test status synchronization between systems."""
         # 1. Create WaterPlantOperator status
@@ -193,15 +199,16 @@ class TestDatabaseIntegration:
         # 2. Create corresponding WaterPlantApp status
         app_status = AppStatus.objects.create(
             message=operator_status.message,
-            status_type='success' if operator_status.watering_status else 'error'
+            execution_status=operator_status.watering_status
         )
         
         # 3. Verify synchronization
         assert app_status.message == operator_status.message
-        assert app_status.status_type == 'success'
+        assert app_status.execution_status == operator_status.watering_status
         assert app_status.is_success == True
         assert app_status.is_failure == False
     
+    @pytest.mark.django_db
     def test_water_chart_integration(self):
         """Test water chart integration."""
         # 1. Create device
@@ -228,6 +235,7 @@ class TestDatabaseIntegration:
         assert water_chart.moisture_level == 45
         assert water_chart.water_level_ml == 1600  # 80% of 2000ml
     
+    @pytest.mark.django_db
     def test_data_consistency_across_systems(self):
         """Test data consistency across both systems."""
         # 1. Create WaterPlantOperator components
@@ -270,6 +278,7 @@ class TestDatabaseIntegration:
         assert app_status.message == operator_status.message
         assert app_status.is_success == operator_status.watering_status
     
+    @pytest.mark.django_db
     def test_database_transactions(self):
         """Test database transactions and rollback."""
         # 1. Test successful transaction
@@ -325,6 +334,7 @@ class TestDatabaseIntegration:
         with pytest.raises(AppDevice.DoesNotExist):
             AppDevice.objects.get(device_id='ROLLBACK_DEVICE_001')
     
+    @pytest.mark.django_db
     def test_database_performance(self):
         """Test database performance with multiple operations."""
         start_time = datetime.now()
@@ -388,6 +398,7 @@ class TestDatabaseIntegration:
         
         assert query_time < 1.0  # Queries should be fast
     
+    @pytest.mark.django_db
     def test_database_constraints(self):
         """Test database constraints and validation."""
         # 1. Test unique constraint on device_id
@@ -423,6 +434,7 @@ class TestDatabaseIntegration:
             )
             device.full_clean()
     
+    @pytest.mark.django_db
     def test_database_relationships(self):
         """Test database relationships between models."""
         # 1. Create device
@@ -482,6 +494,7 @@ class TestDatabaseIntegration:
         device_statuses = device.get_recent_statuses()
         assert device_statuses.count() >= 0  # May be 0 if no direct relationship
     
+    @pytest.mark.django_db
     def test_database_migrations(self):
         """Test database migrations and schema changes."""
         # 1. Test that all models can be created
@@ -535,6 +548,7 @@ class TestDatabaseIntegration:
         assert status.message == 'Migration test completed'
         assert water_chart.device == device
     
+    @pytest.mark.django_db
     def test_database_cleanup(self):
         """Test database cleanup and data integrity."""
         # 1. Create test data

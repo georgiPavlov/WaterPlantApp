@@ -11,13 +11,16 @@ import sys
 import django
 from typing import Dict, Any, List, Optional
 from unittest.mock import Mock, patch, MagicMock
+
+# Configure Django settings first
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../pycharmtut'))
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pycharmtut.test_settings')
+django.setup()
+
+# Now import Django components
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.urls import reverse
-
-# Configure Django settings
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pycharmtut.settings')
-django.setup()
 
 # Add both project paths to sys.path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../../..', 'WaterPlantOperator'))
