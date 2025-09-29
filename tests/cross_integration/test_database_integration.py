@@ -144,9 +144,9 @@ class TestDatabaseIntegration:
         """Test time plan synchronization between systems."""
         # 1. Create WaterPlantOperator time plan
         operator_water_times = [
-            OperatorWaterTime(weekday='monday', time='09:00'),
-            OperatorWaterTime(weekday='wednesday', time='14:00'),
-            OperatorWaterTime(weekday='friday', time='18:00')
+            OperatorWaterTime(weekday='monday', time_to_water='09:00'),
+            OperatorWaterTime(weekday='wednesday', time_to_water='14:00'),
+            OperatorWaterTime(weekday='friday', time_to_water='18:00')
         ]
         
         operator_time_plan = OperatorTimePlan(
@@ -225,8 +225,6 @@ class TestDatabaseIntegration:
         water_chart = AppWaterChart.objects.create(
             device=device,
             water_level=80,
-            moisture_level=45,
-            timestamp=datetime.now()
         )
         
         # 3. Verify water chart properties
@@ -276,7 +274,7 @@ class TestDatabaseIntegration:
         assert app_plan.name == operator_plan.name
         assert app_plan.water_volume == operator_plan.water_volume
         assert app_status.message == operator_status.message
-        assert app_status.is_success == operator_status.watering_status
+        assert app_status.execution_status == operator_status.watering_status
     
     @pytest.mark.django_db
     def test_database_transactions(self):
@@ -402,8 +400,10 @@ class TestDatabaseIntegration:
     def test_database_constraints(self):
         """Test database constraints and validation."""
         # 1. Test unique constraint on device_id
+        import uuid
+        unique_device_id = f'UNIQUE_DEVICE_{uuid.uuid4().hex[:8]}'
         AppDevice.objects.create(
-            device_id='UNIQUE_DEVICE_001',
+            device_id=unique_device_id,
             label='Unique Test Device',
             water_level=75,
             moisture_level=45,
@@ -414,7 +414,7 @@ class TestDatabaseIntegration:
         # Try to create another device with same device_id
         with pytest.raises(django.db.IntegrityError):
             AppDevice.objects.create(
-                device_id='UNIQUE_DEVICE_001',  # Same device_id
+                device_id=unique_device_id,  # Same device_id
                 label='Duplicate Device',
                 water_level=75,
                 moisture_level=45,
@@ -472,15 +472,11 @@ class TestDatabaseIntegration:
         water_chart1 = AppWaterChart.objects.create(
             device=device,
             water_level=75,
-            moisture_level=45,
-            timestamp=datetime.now()
         )
         
         water_chart2 = AppWaterChart.objects.create(
             device=device,
             water_level=80,
-            moisture_level=40,
-            timestamp=datetime.now()
         )
         
         # 5. Test relationships
@@ -536,8 +532,6 @@ class TestDatabaseIntegration:
         water_chart = AppWaterChart.objects.create(
             device=device,
             water_level=75,
-            moisture_level=45,
-            timestamp=datetime.now()
         )
         
         # 2. Verify all objects were created successfully
@@ -575,8 +569,6 @@ class TestDatabaseIntegration:
         water_chart = AppWaterChart.objects.create(
             device=device,
             water_level=75,
-            moisture_level=45,
-            timestamp=datetime.now()
         )
         
         # 2. Verify data exists
