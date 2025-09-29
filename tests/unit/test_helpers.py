@@ -12,559 +12,171 @@ from django.test import TestCase
 from unittest.mock import Mock, patch
 
 from gadget_communicator_pull.helpers.time_keeper import TimeKeeper
-from gadget_communicator_pull.helpers.helper import Helper
-from gadget_communicator_pull.helpers.from_to_json_serializer import JSONSerializer
+from gadget_communicator_pull.helpers.helper import BitChoices, WEEKDAYS, WEEKDAYS_NUMERIC
+from gadget_communicator_pull.helpers.from_to_json_serializer import to_json_serializer, remove_device_field_from_json
 
 
 class TestTimeKeeper(TestCase):
     """Test cases for TimeKeeper helper."""
-    
+
     def test_time_keeper_initialization(self):
         """Test TimeKeeper initialization."""
-        time_keeper = TimeKeeper()
+        current_time = datetime.now()
+        time_keeper = TimeKeeper(current_time)
         
-        # Should have current time
-        self.assertIsNotNone(time_keeper.current_time)
-        self.assertIsInstance(time_keeper.current_time, time)
-    
-    def test_time_keeper_with_custom_time(self):
-        """Test TimeKeeper with custom time."""
-        custom_time = time(14, 30, 0)
-        time_keeper = TimeKeeper(custom_time)
+        self.assertEqual(time_keeper.current_time, current_time)
+        self.assertIsNone(time_keeper.time_last_watered)
+        self.assertIsNone(time_keeper.date_last_watered)
+
+    def test_time_keeper_setters(self):
+        """Test TimeKeeper setter methods."""
+        current_time = datetime.now()
+        time_keeper = TimeKeeper(current_time)
         
-        self.assertEqual(time_keeper.current_time, custom_time)
-    
-    def test_get_current_time(self):
-        """Test getting current time."""
-        time_keeper = TimeKeeper()
-        current_time = time_keeper.get_current_time()
+        # Test set_current_time
+        new_time = datetime.now()
+        time_keeper.set_current_time(new_time)
+        self.assertEqual(time_keeper.current_time, new_time)
         
-        self.assertIsInstance(current_time, time)
-        self.assertIsNotNone(current_time)
-    
-    def test_get_current_date(self):
-        """Test getting current date."""
-        time_keeper = TimeKeeper()
-        current_date = time_keeper.get_current_date()
+        # Test set_time_last_watered
+        water_time = time(9, 0)
+        time_keeper.set_time_last_watered(water_time)
+        self.assertEqual(time_keeper.time_last_watered, water_time)
         
-        self.assertIsInstance(current_date, date)
-        self.assertEqual(current_date, date.today())
-    
-    def test_get_current_datetime(self):
-        """Test getting current datetime."""
-        time_keeper = TimeKeeper()
-        current_datetime = time_keeper.get_current_datetime()
-        
-        self.assertIsInstance(current_datetime, datetime)
-        self.assertIsNotNone(current_datetime)
-    
-    def test_time_operations(self):
-        """Test time operations."""
-        time_keeper = TimeKeeper()
-        
-        # Test time addition
-        result = time_keeper.add_time(time(10, 0, 0), 30)  # Add 30 minutes
-        self.assertEqual(result, time(10, 30, 0))
-        
-        # Test time subtraction
-        result = time_keeper.subtract_time(time(10, 30, 0), 30)  # Subtract 30 minutes
-        self.assertEqual(result, time(10, 0, 0))
-        
-        # Test time difference
-        diff = time_keeper.get_time_difference(time(10, 0, 0), time(11, 30, 0))
-        self.assertEqual(diff, 90)  # 90 minutes
-    
-    def test_date_operations(self):
-        """Test date operations."""
-        time_keeper = TimeKeeper()
-        
-        # Test date addition
-        result = time_keeper.add_days(date(2023, 1, 1), 7)
-        self.assertEqual(result, date(2023, 1, 8))
-        
-        # Test date subtraction
-        result = time_keeper.subtract_days(date(2023, 1, 8), 7)
-        self.assertEqual(result, date(2023, 1, 1))
-        
-        # Test date difference
-        diff = time_keeper.get_date_difference(date(2023, 1, 1), date(2023, 1, 8))
-        self.assertEqual(diff, 7)  # 7 days
-    
-    def test_time_formatting(self):
-        """Test time formatting."""
-        time_keeper = TimeKeeper()
-        
-        # Test time to string
-        time_str = time_keeper.time_to_string(time(14, 30, 0))
-        self.assertEqual(time_str, "14:30:00")
-        
-        # Test string to time
-        parsed_time = time_keeper.string_to_time("14:30:00")
-        self.assertEqual(parsed_time, time(14, 30, 0))
-    
-    def test_date_formatting(self):
-        """Test date formatting."""
-        time_keeper = TimeKeeper()
-        
-        # Test date to string
-        date_str = time_keeper.date_to_string(date(2023, 1, 15))
-        self.assertEqual(date_str, "2023-01-15")
-        
-        # Test string to date
-        parsed_date = time_keeper.string_to_date("2023-01-15")
-        self.assertEqual(parsed_date, date(2023, 1, 15))
-    
-    def test_weekday_operations(self):
-        """Test weekday operations."""
-        time_keeper = TimeKeeper()
-        
-        # Test getting weekday name
-        weekday_name = time_keeper.get_weekday_name(date(2023, 1, 2))  # Monday
-        self.assertEqual(weekday_name, "monday")
-        
-        # Test getting weekday number
-        weekday_num = time_keeper.get_weekday_number("monday")
-        self.assertEqual(weekday_num, 0)
-        
-        # Test getting weekday from number
-        weekday_name = time_keeper.get_weekday_from_number(0)
-        self.assertEqual(weekday_name, "monday")
-    
-    def test_time_validation(self):
-        """Test time validation."""
-        time_keeper = TimeKeeper()
+        # Test set_date_last_watered
+        water_date = date.today()
+        time_keeper.set_date_last_watered(water_date)
+        self.assertEqual(time_keeper.date_last_watered, water_date)
+
+    def test_time_keeper_validation(self):
+        """Test TimeKeeper validation methods."""
+        current_time = datetime.now()
+        time_keeper = TimeKeeper(current_time)
         
         # Test valid time
-        self.assertTrue(time_keeper.is_valid_time(time(14, 30, 0)))
+        self.assertTrue(time_keeper.is_valid_time("09:00"))
+        self.assertTrue(time_keeper.is_valid_time("23:59"))
         
-        # Test invalid time (should not raise exception, just return False)
+        # Test invalid time
+        self.assertFalse(time_keeper.is_valid_time("25:00"))
+        self.assertFalse(time_keeper.is_valid_time("12:60"))
         self.assertFalse(time_keeper.is_valid_time("invalid"))
-    
-    def test_date_validation(self):
-        """Test date validation."""
-        time_keeper = TimeKeeper()
+
+    def test_time_keeper_date_validation(self):
+        """Test TimeKeeper date validation."""
+        current_time = datetime.now()
+        time_keeper = TimeKeeper(current_time)
         
         # Test valid date
-        self.assertTrue(time_keeper.is_valid_date(date(2023, 1, 15)))
+        self.assertTrue(time_keeper.is_valid_date("2024-01-01"))
+        self.assertTrue(time_keeper.is_valid_date("2024-12-31"))
         
-        # Test invalid date (should not raise exception, just return False)
+        # Test invalid date
+        self.assertFalse(time_keeper.is_valid_date("2024-13-01"))
+        self.assertFalse(time_keeper.is_valid_date("2024-02-30"))
         self.assertFalse(time_keeper.is_valid_date("invalid"))
 
 
-class TestHelper(TestCase):
-    """Test cases for Helper utility class."""
-    
-    def test_helper_initialization(self):
-        """Test Helper initialization."""
-        helper = Helper()
-        self.assertIsNotNone(helper)
-    
-    def test_validate_email(self):
-        """Test email validation."""
-        helper = Helper()
+class TestBitChoices(TestCase):
+    """Test cases for BitChoices utility class."""
+
+    def test_bitchoices_initialization(self):
+        """Test BitChoices initialization."""
+        choices = [('option1', 'Option 1'), ('option2', 'Option 2')]
+        bit_choices = BitChoices(choices)
+        self.assertIsNotNone(bit_choices)
+
+    def test_bitchoices_iteration(self):
+        """Test BitChoices iteration."""
+        choices = [('option1', 'Option 1'), ('option2', 'Option 2')]
+        bit_choices = BitChoices(choices)
         
-        # Test valid emails
-        self.assertTrue(helper.validate_email("test@example.com"))
-        self.assertTrue(helper.validate_email("user.name@domain.co.uk"))
-        self.assertTrue(helper.validate_email("test+tag@example.org"))
+        # Test iteration
+        for choice in bit_choices:
+            self.assertIsInstance(choice, tuple)
+            self.assertEqual(len(choice), 2)
+
+    def test_bitchoices_length(self):
+        """Test BitChoices length."""
+        choices = [('option1', 'Option 1'), ('option2', 'Option 2')]
+        bit_choices = BitChoices(choices)
+        self.assertEqual(len(bit_choices), 2)
+
+    def test_bitchoices_attribute_access(self):
+        """Test BitChoices attribute access."""
+        choices = [('option1', 'Option 1'), ('option2', 'Option 2')]
+        bit_choices = BitChoices(choices)
         
-        # Test invalid emails
-        self.assertFalse(helper.validate_email("invalid-email"))
-        self.assertFalse(helper.validate_email("@example.com"))
-        self.assertFalse(helper.validate_email("test@"))
-        self.assertFalse(helper.validate_email(""))
-        self.assertFalse(helper.validate_email(None))
-    
-    def test_validate_phone(self):
-        """Test phone number validation."""
-        helper = Helper()
+        # Test attribute access
+        self.assertEqual(bit_choices.option1, 1)  # 2^0
+        self.assertEqual(bit_choices.option2, 2)  # 2^1
+
+    def test_weekdays_constants(self):
+        """Test WEEKDAYS constants."""
+        # Test WEEKDAYS
+        self.assertIsNotNone(WEEKDAYS)
+        self.assertEqual(len(WEEKDAYS), 7)
         
-        # Test valid phone numbers
-        self.assertTrue(helper.validate_phone("+1234567890"))
-        self.assertTrue(helper.validate_phone("123-456-7890"))
-        self.assertTrue(helper.validate_phone("(123) 456-7890"))
-        self.assertTrue(helper.validate_phone("123.456.7890"))
-        
-        # Test invalid phone numbers
-        self.assertFalse(helper.validate_phone("123"))
-        self.assertFalse(helper.validate_phone("abc-def-ghij"))
-        self.assertFalse(helper.validate_phone(""))
-        self.assertFalse(helper.validate_phone(None))
-    
-    def test_validate_url(self):
-        """Test URL validation."""
-        helper = Helper()
-        
-        # Test valid URLs
-        self.assertTrue(helper.validate_url("https://example.com"))
-        self.assertTrue(helper.validate_url("http://example.com"))
-        self.assertTrue(helper.validate_url("https://subdomain.example.com/path"))
-        self.assertTrue(helper.validate_url("https://example.com:8080/path?param=value"))
-        
-        # Test invalid URLs
-        self.assertFalse(helper.validate_url("not-a-url"))
-        self.assertFalse(helper.validate_url("ftp://example.com"))
-        self.assertFalse(helper.validate_url(""))
-        self.assertFalse(helper.validate_url(None))
-    
-    def test_sanitize_string(self):
-        """Test string sanitization."""
-        helper = Helper()
-        
-        # Test string sanitization
-        result = helper.sanitize_string("  Hello World  ")
-        self.assertEqual(result, "Hello World")
-        
-        result = helper.sanitize_string("\n\tTest String\n\t")
-        self.assertEqual(result, "Test String")
-        
-        result = helper.sanitize_string("")
-        self.assertEqual(result, "")
-        
-        result = helper.sanitize_string(None)
-        self.assertEqual(result, "")
-    
-    def test_format_number(self):
-        """Test number formatting."""
-        helper = Helper()
-        
-        # Test number formatting
-        result = helper.format_number(1234.5678, 2)
-        self.assertEqual(result, "1,234.57")
-        
-        result = helper.format_number(1234.5678, 0)
-        self.assertEqual(result, "1,235")
-        
-        result = helper.format_number(0, 2)
-        self.assertEqual(result, "0.00")
-        
-        result = helper.format_number(-1234.5678, 2)
-        self.assertEqual(result, "-1,234.57")
-    
-    def test_generate_random_string(self):
-        """Test random string generation."""
-        helper = Helper()
-        
-        # Test random string generation
-        result = helper.generate_random_string(10)
-        self.assertEqual(len(result), 10)
-        self.assertTrue(result.isalnum())
-        
-        result = helper.generate_random_string(5)
-        self.assertEqual(len(result), 5)
-        
-        result = helper.generate_random_string(0)
-        self.assertEqual(len(result), 0)
-    
-    def test_calculate_percentage(self):
-        """Test percentage calculation."""
-        helper = Helper()
-        
-        # Test percentage calculation
-        result = helper.calculate_percentage(25, 100)
-        self.assertEqual(result, 25.0)
-        
-        result = helper.calculate_percentage(50, 200)
-        self.assertEqual(result, 25.0)
-        
-        result = helper.calculate_percentage(0, 100)
-        self.assertEqual(result, 0.0)
-        
-        result = helper.calculate_percentage(100, 100)
-        self.assertEqual(result, 100.0)
-        
-        # Test division by zero
-        result = helper.calculate_percentage(50, 0)
-        self.assertEqual(result, 0.0)
-    
-    def test_convert_units(self):
-        """Test unit conversion."""
-        helper = Helper()
-        
-        # Test volume conversion (ml to liters)
-        result = helper.convert_ml_to_liters(1000)
-        self.assertEqual(result, 1.0)
-        
-        result = helper.convert_ml_to_liters(500)
-        self.assertEqual(result, 0.5)
-        
-        result = helper.convert_ml_to_liters(0)
-        self.assertEqual(result, 0.0)
-        
-        # Test temperature conversion (Celsius to Fahrenheit)
-        result = helper.convert_celsius_to_fahrenheit(0)
-        self.assertEqual(result, 32.0)
-        
-        result = helper.convert_celsius_to_fahrenheit(100)
-        self.assertEqual(result, 212.0)
-        
-        result = helper.convert_celsius_to_fahrenheit(-40)
-        self.assertEqual(result, -40.0)  # Same in both scales
+        # Test WEEKDAYS_NUMERIC
+        self.assertIsNotNone(WEEKDAYS_NUMERIC)
+        self.assertEqual(len(WEEKDAYS_NUMERIC), 7)
+        self.assertEqual(WEEKDAYS_NUMERIC['Monday'], 1)
+        self.assertEqual(WEEKDAYS_NUMERIC['Sunday'], 64)
 
 
 class TestJSONSerializer(TestCase):
-    """Test cases for JSONSerializer helper."""
-    
-    def test_json_serializer_initialization(self):
-        """Test JSONSerializer initialization."""
-        serializer = JSONSerializer()
-        self.assertIsNotNone(serializer)
-    
-    def test_serialize_to_json(self):
-        """Test serialization to JSON."""
-        serializer = JSONSerializer()
+    """Test cases for JSON serializer functions."""
+
+    def test_to_json_serializer(self):
+        """Test to_json_serializer function."""
+        # Mock serializer with data
+        mock_serializer = Mock()
+        mock_serializer.data = {'test': 'data', 'number': 123}
         
-        # Test simple object serialization
-        data = {"name": "Test", "value": 123}
-        result = serializer.serialize_to_json(data)
-        self.assertIsInstance(result, str)
+        # Test serialization
+        result = to_json_serializer(mock_serializer)
+        self.assertEqual(result, {'test': 'data', 'number': 123})
+
+    def test_remove_device_field_from_json(self):
+        """Test remove_device_field_from_json function."""
+        # Test with device field
+        json_obj = {'device': 'test', 'other': 'data'}
+        result = remove_device_field_from_json(json_obj)
+        self.assertNotIn('device', result)
+        self.assertIn('other', result)
         
-        # Parse back to verify
-        parsed = json.loads(result)
-        self.assertEqual(parsed["name"], "Test")
-        self.assertEqual(parsed["value"], 123)
-    
-    def test_deserialize_from_json(self):
-        """Test deserialization from JSON."""
-        serializer = JSONSerializer()
-        
-        # Test valid JSON
-        json_str = '{"name": "Test", "value": 123}'
-        result = serializer.deserialize_from_json(json_str)
-        self.assertEqual(result["name"], "Test")
-        self.assertEqual(result["value"], 123)
-        
-        # Test invalid JSON
-        invalid_json = '{"name": "Test", "value": 123'  # Missing closing brace
-        result = serializer.deserialize_from_json(invalid_json)
-        self.assertIsNone(result)
-    
-    def test_serialize_datetime(self):
-        """Test datetime serialization."""
-        serializer = JSONSerializer()
-        
-        # Test datetime serialization
-        dt = datetime(2023, 1, 15, 14, 30, 0)
-        data = {"timestamp": dt}
-        result = serializer.serialize_to_json(data)
-        
-        # Parse back to verify
-        parsed = json.loads(result)
-        self.assertIn("timestamp", parsed)
-    
-    def test_serialize_decimal(self):
-        """Test decimal serialization."""
-        serializer = JSONSerializer()
-        
-        # Test decimal serialization
-        decimal_val = Decimal("123.45")
-        data = {"price": decimal_val}
-        result = serializer.serialize_to_json(data)
-        
-        # Parse back to verify
-        parsed = json.loads(result)
-        self.assertEqual(float(parsed["price"]), 123.45)
-    
-    def test_serialize_nested_objects(self):
-        """Test nested object serialization."""
-        serializer = JSONSerializer()
-        
-        # Test nested object serialization
-        data = {
-            "user": {
-                "name": "John Doe",
-                "email": "john@example.com",
-                "preferences": {
-                    "theme": "dark",
-                    "notifications": True
-                }
-            },
-            "items": [1, 2, 3, 4, 5]
-        }
-        
-        result = serializer.serialize_to_json(data)
-        parsed = json.loads(result)
-        
-        self.assertEqual(parsed["user"]["name"], "John Doe")
-        self.assertEqual(parsed["user"]["preferences"]["theme"], "dark")
-        self.assertEqual(parsed["items"], [1, 2, 3, 4, 5])
-    
-    def test_serialize_with_custom_encoder(self):
-        """Test serialization with custom encoder."""
-        serializer = JSONSerializer()
-        
-        # Test with custom encoder
-        class CustomEncoder(json.JSONEncoder):
-            def default(self, obj):
-                if isinstance(obj, set):
-                    return list(obj)
-                return super().default(obj)
-        
-        data = {"tags": {"python", "django", "testing"}}
-        result = serializer.serialize_to_json(data, encoder=CustomEncoder)
-        parsed = json.loads(result)
-        
-        self.assertIsInstance(parsed["tags"], list)
-        self.assertEqual(len(parsed["tags"]), 3)
-    
-    def test_validate_json(self):
-        """Test JSON validation."""
-        serializer = JSONSerializer()
-        
-        # Test valid JSON
-        valid_json = '{"name": "Test", "value": 123}'
-        self.assertTrue(serializer.validate_json(valid_json))
-        
-        # Test invalid JSON
-        invalid_json = '{"name": "Test", "value": 123'  # Missing closing brace
-        self.assertFalse(serializer.validate_json(invalid_json))
-        
-        # Test empty string
-        self.assertFalse(serializer.validate_json(""))
-        
-        # Test None
-        self.assertFalse(serializer.validate_json(None))
-    
-    def test_pretty_print_json(self):
-        """Test pretty printing JSON."""
-        serializer = JSONSerializer()
-        
-        data = {"name": "Test", "value": 123, "nested": {"key": "value"}}
-        result = serializer.pretty_print_json(data)
-        
-        self.assertIsInstance(result, str)
-        # Should contain newlines and indentation
-        self.assertIn("\n", result)
-        self.assertIn("  ", result)  # Indentation
-    
-    def test_serialize_with_error_handling(self):
-        """Test serialization with error handling."""
-        serializer = JSONSerializer()
-        
-        # Test with non-serializable object
-        class NonSerializable:
-            def __init__(self):
-                self.func = lambda x: x
-        
-        data = {"obj": NonSerializable()}
-        result = serializer.serialize_to_json(data)
-        
-        # Should handle error gracefully
-        self.assertIsNone(result)
-    
-    def test_deserialize_with_error_handling(self):
-        """Test deserialization with error handling."""
-        serializer = JSONSerializer()
-        
-        # Test with malformed JSON
-        malformed_json = '{"name": "Test", "value": 123'  # Missing closing brace
-        result = serializer.deserialize_from_json(malformed_json)
-        
-        # Should handle error gracefully
-        self.assertIsNone(result)
-        
-        # Test with empty string
-        result = serializer.deserialize_from_json("")
-        self.assertIsNone(result)
-        
-        # Test with None
-        result = serializer.deserialize_from_json(None)
-        self.assertIsNone(result)
+        # Test without device field
+        json_obj = {'other': 'data'}
+        result = remove_device_field_from_json(json_obj)
+        self.assertEqual(result, {'other': 'data'})
 
 
 class TestHelperIntegration(TestCase):
-    """Test cases for helper integration and edge cases."""
-    
-    def test_time_keeper_with_helper_integration(self):
-        """Test TimeKeeper integration with Helper."""
-        time_keeper = TimeKeeper()
-        helper = Helper()
+    """Test cases for helper integration."""
+
+    def test_time_keeper_integration(self):
+        """Test TimeKeeper integration with other components."""
+        current_time = datetime.now()
+        time_keeper = TimeKeeper(current_time)
         
-        # Test time formatting with helper
-        current_time = time_keeper.get_current_time()
-        time_str = time_keeper.time_to_string(current_time)
+        # Test integration
+        self.assertIsNotNone(time_keeper)
+        self.assertTrue(hasattr(time_keeper, 'current_time'))
+
+    def test_bitchoices_integration(self):
+        """Test BitChoices integration."""
+        choices = [('test', 'Test')]
+        bit_choices = BitChoices(choices)
         
-        # Validate time string format
-        self.assertTrue(helper.validate_time_format(time_str))
-    
-    def test_json_serializer_with_time_keeper(self):
-        """Test JSONSerializer with TimeKeeper data."""
-        time_keeper = TimeKeeper()
-        serializer = JSONSerializer()
+        # Test integration
+        self.assertIsNotNone(bit_choices)
+        self.assertEqual(bit_choices.test, 1)
+
+    def test_json_serializer_integration(self):
+        """Test JSON serializer integration."""
+        # Test integration
+        mock_serializer = Mock()
+        mock_serializer.data = {'test': 'data'}
         
-        # Test serializing time keeper data
-        data = {
-            "current_time": time_keeper.get_current_time(),
-            "current_date": time_keeper.get_current_date(),
-            "timestamp": time_keeper.get_current_datetime()
-        }
-        
-        result = serializer.serialize_to_json(data)
-        self.assertIsNotNone(result)
-        
-        # Parse back to verify
-        parsed = serializer.deserialize_from_json(result)
-        self.assertIsNotNone(parsed)
-    
-    def test_helper_validation_integration(self):
-        """Test Helper validation methods integration."""
-        helper = Helper()
-        
-        # Test email validation with sanitized input
-        email = "  test@example.com  "
-        sanitized_email = helper.sanitize_string(email)
-        self.assertTrue(helper.validate_email(sanitized_email))
-        
-        # Test phone validation with formatted input
-        phone = "123-456-7890"
-        self.assertTrue(helper.validate_phone(phone))
-        
-        # Test URL validation
-        url = "https://example.com"
-        self.assertTrue(helper.validate_url(url))
-    
-    def test_edge_cases(self):
-        """Test edge cases for all helpers."""
-        time_keeper = TimeKeeper()
-        helper = Helper()
-        serializer = JSONSerializer()
-        
-        # Test TimeKeeper edge cases
-        midnight = time(0, 0, 0)
-        result = time_keeper.add_time(midnight, 1440)  # Add 24 hours
-        self.assertEqual(result, time(0, 0, 0))
-        
-        # Test Helper edge cases
-        result = helper.calculate_percentage(0, 0)
-        self.assertEqual(result, 0.0)
-        
-        result = helper.generate_random_string(-1)
-        self.assertEqual(len(result), 0)
-        
-        # Test JSONSerializer edge cases
-        result = serializer.serialize_to_json({})
-        self.assertEqual(result, "{}")
-        
-        result = serializer.deserialize_from_json("{}")
-        self.assertEqual(result, {})
-    
-    def test_performance_considerations(self):
-        """Test performance considerations for helpers."""
-        time_keeper = TimeKeeper()
-        helper = Helper()
-        serializer = JSONSerializer()
-        
-        # Test large data serialization
-        large_data = {"items": list(range(1000))}
-        result = serializer.serialize_to_json(large_data)
-        self.assertIsNotNone(result)
-        
-        # Test multiple time operations
-        for i in range(100):
-            result = time_keeper.add_time(time(10, 0, 0), i)
-            self.assertIsNotNone(result)
-        
-        # Test multiple string operations
-        for i in range(100):
-            result = helper.sanitize_string(f"  test string {i}  ")
-            self.assertIsNotNone(result)
+        result = to_json_serializer(mock_serializer)
+        self.assertEqual(result, {'test': 'data'})
