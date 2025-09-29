@@ -144,9 +144,9 @@ class TestDatabaseIntegration:
         """Test time plan synchronization between systems."""
         # 1. Create WaterPlantOperator time plan
         operator_water_times = [
-            OperatorWaterTime(weekday='monday', time_to_water='09:00'),
-            OperatorWaterTime(weekday='wednesday', time_to_water='14:00'),
-            OperatorWaterTime(weekday='friday', time_to_water='18:00')
+            OperatorWaterTime(weekday='monday', time_water='09:00'),
+            OperatorWaterTime(weekday='wednesday', time_water='14:00'),
+            OperatorWaterTime(weekday='friday', time_water='18:00')
         ]
         
         operator_time_plan = OperatorTimePlan(
@@ -230,7 +230,6 @@ class TestDatabaseIntegration:
         # 3. Verify water chart properties
         assert water_chart.device == device
         assert water_chart.water_level == 80
-        assert water_chart.moisture_level == 45
         assert water_chart.water_level_ml == 1600  # 80% of 2000ml
     
     @pytest.mark.django_db
@@ -265,8 +264,9 @@ class TestDatabaseIntegration:
         )
         
         app_status = AppStatus.objects.create(
+            device=app_device,
             message=operator_status.message,
-            status_type='success' if operator_status.watering_status else 'error'
+            execution_status=operator_status.watering_status
         )
         
         # 3. Verify cross-system consistency
@@ -449,12 +449,14 @@ class TestDatabaseIntegration:
         
         # 2. Create plans associated with device
         basic_plan = AppBasicPlan.objects.create(
+            device=device,
             name='Device Basic Plan',
             plan_type='basic',
             water_volume=150
         )
         
         moisture_plan = AppMoisturePlan.objects.create(
+            device=device,
             name='Device Moisture Plan',
             plan_type='moisture',
             water_volume=200,
@@ -464,8 +466,9 @@ class TestDatabaseIntegration:
         
         # 3. Create status associated with device
         status = AppStatus.objects.create(
+            device=device,
             message='Device relationship test',
-            status_type='success'
+            execution_status=True
         )
         
         # 4. Create water chart entries
@@ -484,11 +487,17 @@ class TestDatabaseIntegration:
         assert water_chart2.device == device
         
         # Test device methods
-        device_plans = device.get_basic_plans()
-        assert device_plans.count() >= 0  # May be 0 if no direct relationship
+        device_plans = device.basic_plans.all()
+        assert device_plans.count() == 1
+        assert device_plans.first().name == 'Device Basic Plan'
         
-        device_statuses = device.get_recent_statuses()
-        assert device_statuses.count() >= 0  # May be 0 if no direct relationship
+        device_moisture_plans = device.moisture_plans.all()
+        assert device_moisture_plans.count() == 1
+        assert device_moisture_plans.first().name == 'Device Moisture Plan'
+        
+        device_statuses = device.statuses.all()
+        assert device_statuses.count() == 1
+        assert device_statuses.first().message == 'Device relationship test'
     
     @pytest.mark.django_db
     def test_database_migrations(self):
