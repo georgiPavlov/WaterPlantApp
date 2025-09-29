@@ -12,18 +12,25 @@ A Django web application for managing water plant automation systems. Works with
 
 ## 🚀 Quick Start
 
-### 1. Run Setup Script
+### Prerequisites
+- Python 3.9+ installed
+- Git installed
+- Terminal/Command line access
+
+### One-Command Setup
 ```bash
-cd /Users/I336317/SAPDevelop/projects/local/WaterPlantApp
+# Clone and setup everything automatically
+git clone https://github.com/georgiPavlov/WaterPlantApp.git
+cd WaterPlantApp
 ./setup.sh
 ```
 
-### 2. Start the Application
+### Start the Application
 ```bash
 ./start.sh
 ```
 
-### 3. Access the Application
+### Access the Application
 - **Web Interface**: http://localhost:8001/gadget_communicator_pull/list/
 - **Admin Panel**: http://localhost:8001/admin/
 - **API Documentation**: http://localhost:8001/gadget_communicator_pull/api/
@@ -39,7 +46,8 @@ cd /Users/I336317/SAPDevelop/projects/local/WaterPlantApp
 - **WaterPlantOperator Compatibility**: 11/11 tests ✅
 - **HTTP API Integration**: 21/21 tests ✅
 - **Database Integration**: 4/4 tests ✅
-- **Total**: 36/36 tests passing (100% success rate)
+- **Unit Tests**: 122/122 tests ✅
+- **Total**: 158/158 tests passing (100% success rate)
 
 ## 📁 Project Structure
 

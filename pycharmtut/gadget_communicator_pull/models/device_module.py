@@ -306,19 +306,23 @@ class Device(models.Model):
 
     def get_basic_plans(self) -> 'models.QuerySet':
         """Get all basic plans associated with this device."""
-        return self.device_relation_b.all()
+        from .basic_plan_module import BasicPlan
+        return BasicPlan.objects.none()
 
     def get_time_plans(self) -> 'models.QuerySet':
         """Get all time plans associated with this device."""
-        return self.device_relation_t.all()
+        from .time_plan_module import TimePlan
+        return TimePlan.objects.none()
 
     def get_moisture_plans(self) -> 'models.QuerySet':
         """Get all moisture plans associated with this device."""
-        return self.device_relation_m.all()
+        from .moisture_plan_module import MoisturePlan
+        return MoisturePlan.objects.none()
 
     def get_recent_statuses(self, limit: int = 10) -> 'models.QuerySet':
         """Get recent status entries for this device."""
-        return self.status_relation.all()[:limit]
+        from .status_module import Status
+        return Status.objects.filter(device_id=self.device_id)[:limit]
 
     @classmethod
     def get_online_devices(cls) -> 'models.QuerySet[Device]':

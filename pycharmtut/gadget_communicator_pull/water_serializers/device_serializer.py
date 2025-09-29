@@ -104,7 +104,7 @@ class DeviceSerializer(serializers.ModelSerializer):
     time_plans = serializers.SerializerMethodField()
     moisture_plans = serializers.SerializerMethodField()
     recent_statuses = serializers.SerializerMethodField()
-    water_charts = WaterChartSerializer(many=True, read_only=True, source='water_charts')
+    water_charts = WaterChartSerializer(many=True, read_only=True)
 
     class Meta:
         """Meta options for DeviceSerializer."""
