@@ -27,7 +27,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["localhost", "wmeautomation.de", "18.184.36.52", "192.168.1.20", "127.0.0.1", '192.168.1.31', '192.168.1.17',
                  '172.31.44.13', 'ip-172-31-44-13.eu-central-1.compute.internal',
-                 'water-me-lb-842691727.eu-central-1.elb.amazonaws.com']
+                 'water-me-lb-842691727.eu-central-1.elb.amazonaws.com', 'host.docker.internal']
 
 # Application definition
 

@@ -271,12 +271,20 @@ class PostPlanExecution(generics.CreateAPIView, DeviceObjectMixin):
 
     def send_email_to_user(self, device, execution_message, execution_status):
         if device.send_email:
-            user_ = User.objects.filter(announces=device).first()
-            email_ = user_.email
-            email_sender = WaterEmail()
-            email_message = execution_message
-            email_subject = f'Device Operation: {execution_status}'
-            email_sender.send_email(email_receiver=email_, subject=email_subject, message=email_message)
+            try:
+                user_ = User.objects.filter(announces=device).first()
+                if user_ and user_.email:
+                    email_ = user_.email
+                    email_sender = WaterEmail()
+                    email_message = execution_message
+                    email_subject = f'Device Operation: {execution_status}'
+                    success = email_sender.send_email(email_receiver=email_, subject=email_subject, message=email_message)
+                    if not success:
+                        print(f"Email sending failed for device {device.device_id}")
+                else:
+                    print(f"No user or email found for device {device.device_id}")
+            except Exception as e:
+                print(f"Error sending email for device {device.device_id}: {e}")
 
 
 class PostPhoto(generics.CreateAPIView, DeviceObjectMixin):

@@ -188,7 +188,7 @@ class HealthCheck(generics.ListAPIView):
         connected_devices = devices.filter(is_connected=True)
         date_k = time_keeper.TimeKeeper(time_keeper.TimeKeeper.get_current_date())
         for connected_device in connected_devices:
-            current_time_minus_delta = date_k.get_current_time_minus_delta_seconds(15)
+            current_time_minus_delta = date_k.get_current_time_minus_delta_seconds(30)
             device_last_check = connected_device.health_relation.all().first()
             device_last_time_check = date_k.get_time_from_time_string(device_last_check.status_time)
             if device_last_time_check < current_time_minus_delta:
