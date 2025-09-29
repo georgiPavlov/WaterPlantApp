@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
-from rest_framework_jwt.settings import api_settings
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.http import JsonResponse
 
 from gadget_communicator_pull.helpers import time_keeper
@@ -12,9 +12,7 @@ from .water_email import WaterEmail
 import re
 import uuid
 
-# Get the JWT settings
-jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+# JWT token generation
 
 
 class LoginView(generics.CreateAPIView):
@@ -38,9 +36,7 @@ class LoginView(generics.CreateAPIView):
             login(request, user)
             serializer = TokenSerializer(data={
                 # using drf jwt utility functions to generate a token
-                "token": jwt_encode_handler(
-                    jwt_payload_handler(user)
-                )})
+                "token": str(RefreshToken.for_user(user).access_token)})
             serializer.is_valid()
             return Response(serializer.data)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -98,9 +94,7 @@ class ProfilePasswordChangeView(generics.CreateAPIView):
             login(request, user)
             serializer = TokenSerializer(data={
                 # using drf jwt utility functions to generate a token
-                "token": jwt_encode_handler(
-                    jwt_payload_handler(user)
-                )})
+                "token": str(RefreshToken.for_user(user).access_token)})
             serializer.is_valid()
             user_ = User.objects.filter(username=username).first()
             email_ = user_.email
@@ -154,9 +148,7 @@ class ProfileView(generics.CreateAPIView):
             login(request, user)
             serializer = TokenSerializer(data={
                 # using drf jwt utility functions to generate a token
-                "token": jwt_encode_handler(
-                    jwt_payload_handler(user)
-                )})
+                "token": str(RefreshToken.for_user(user).access_token)})
             serializer.is_valid()
             user_ = User.objects.filter(username=username).first()
             print(user_.email)

@@ -45,3 +45,21 @@ class TimeKeeper:
         time_change = datetime.timedelta(seconds=delta)
         time_with_delta = now - time_change
         return time_with_delta.strftime(TIME_FORMAT)
+
+    @staticmethod
+    def is_valid_time(time_string):
+        """Validate time string format."""
+        try:
+            datetime.datetime.strptime(time_string, TIME_FORMAT)
+            return True
+        except ValueError:
+            return False
+
+    @staticmethod
+    def is_valid_date(date_string):
+        """Validate date string format."""
+        try:
+            datetime.datetime.strptime(date_string, "%Y-%m-%d")
+            return True
+        except ValueError:
+            return False

@@ -15,13 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
-from rest_framework_jwt.views import obtain_jwt_token
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from gadget_communicator_pull import views as v
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api-token-auth/', obtain_jwt_token, name='create-token'),
+    path('api-token-auth/', TokenObtainPairView.as_view(), name='create-token'),
     path('api/', include('authentication.urls')),
     path('gadget_communicator_pull/', include('gadget_communicator_pull.urls')),
 ]

@@ -1,0 +1,60 @@
+# Cross-integration test requirements
+
+# Core testing framework
+pytest>=6.2.5
+pytest-django>=4.4.0
+pytest-cov>=2.12.1
+pytest-mock>=3.6.1
+
+# Django testing
+django>=3.2,<4.0
+djangorestframework>=3.12.0
+django-cors-headers>=3.7.0
+django-filter>=2.4.0
+
+# Mocking and test utilities
+factory-boy>=3.2.0
+faker>=8.8.2
+freezegun>=1.1.0
+
+# HTTP testing
+requests-mock>=1.9.3
+responses>=0.13.3
+
+# Data validation
+jsonschema>=3.2.0
+
+# Type checking
+mypy>=0.910
+django-stubs>=1.9.0
+
+# Code quality
+black>=21.6b0
+flake8>=3.9.2
+isort>=5.9.3
+
+# Coverage reporting
+coverage>=5.5.0
+
+# Environment management
+python-decouple>=3.4
+python-dotenv>=0.19.0
+
+# Date/time utilities
+python-dateutil>=2.8.2
+pytz>=2021.1
+
+# JSON handling
+jsonschema>=3.2.0
+
+# HTTP client
+requests>=2.25.1
+
+# Async testing (if needed)
+pytest-asyncio>=0.15.1
+
+# Performance testing
+pytest-benchmark>=3.4.1
+
+# Parallel testing
+pytest-xdist>=2.3.0
