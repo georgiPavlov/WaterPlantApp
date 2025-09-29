@@ -1,7 +1,12 @@
 # WaterPlantApp Project Setup Guide
 
 ## Overview
-WaterPlantApp is a Django-based web application that provides a comprehensive platform for managing water plant automation systems. It serves as the central server that communicates with WaterPlantOperator devices (Raspberry Pi clients) to monitor and control watering operations.
+WaterPlantApp is a Django-based web application that provides a platform for managing water plant automation systems. It serves as the central server that communicates with WaterPlantOperator devices (Raspberry Pi clients) to monitor and control watering operations.
+
+## Quick Start
+1. **Setup**: Run `./setup.sh` to install dependencies
+2. **Start**: Run `./start.sh` to start the server
+3. **Test**: Run `./test.sh` to verify everything works
 
 ## Table of Contents
 1. [Prerequisites](#prerequisites)
@@ -10,9 +15,7 @@ WaterPlantApp is a Django-based web application that provides a comprehensive pl
 4. [Database Setup](#database-setup)
 5. [Running the Application](#running-the-application)
 6. [Testing](#testing)
-7. [Development Setup](#development-setup)
-8. [Production Deployment](#production-deployment)
-9. [Troubleshooting](#troubleshooting)
+7. [Troubleshooting](#troubleshooting)
 
 ## Prerequisites
 
@@ -36,40 +39,27 @@ WaterPlantApp is a Django-based web application that provides a comprehensive pl
 
 ## Installation
 
-### 1. Clone the Repository
+### Automated Installation (Recommended)
 ```bash
+# Clone the repository
 git clone https://github.com/georgiPavlov/WaterPlantApp.git
 cd WaterPlantApp
+
+# Run setup script to install everything
+./setup.sh
 ```
 
-### 2. Create Virtual Environment
+### Manual Installation
 ```bash
 # Create virtual environment
 python3 -m venv venv
-
-# Activate virtual environment
-# On Linux/macOS:
 source venv/bin/activate
-# On Windows:
-venv\Scripts\activate
-```
 
-### 3. Install Dependencies
-```bash
-# Install production dependencies
+# Install dependencies
 pip install -r requirements.txt
 
-# Install development dependencies (optional)
-pip install -r requirements-dev.txt
-```
-
-### 4. Environment Configuration
-```bash
 # Copy environment template
 cp env.example .env
-
-# Edit environment variables
-nano .env
 ```
 
 ## Configuration
@@ -119,44 +109,31 @@ The main settings are configured in `pycharmtut/settings.py`. Key configurations
 
 ## Database Setup
 
-### 1. Create Database (PostgreSQL)
+### Automated Setup
 ```bash
-# Connect to PostgreSQL
-psql -U postgres
-
-# Create database
-CREATE DATABASE waterplantapp;
-CREATE USER waterplantapp_user WITH PASSWORD 'your_password';
-GRANT ALL PRIVILEGES ON DATABASE waterplantapp TO waterplantapp_user;
-\q
+# Run setup script to configure database
+./setup.sh
 ```
 
-### 2. Run Migrations
+### Manual Setup
 ```bash
-# Create migrations
+# Run migrations
 python manage.py makemigrations
-
-# Apply migrations
 python manage.py migrate
 
 # Create superuser
 python manage.py createsuperuser
 ```
 
-### 3. Load Initial Data (Optional)
-```bash
-# Load fixtures
-python manage.py loaddata fixtures/initial_data.json
-
-# Or create sample data
-python manage.py shell
->>> from gadget_communicator_pull.models import *
->>> # Create sample devices, plans, etc.
-```
-
 ## Running the Application
 
-### Development Server
+### Automated Start (Recommended)
+```bash
+# Start the server with one command
+./start.sh
+```
+
+### Manual Start
 ```bash
 # Run development server
 python manage.py runserver
@@ -165,70 +142,28 @@ python manage.py runserver
 python manage.py runserver 0.0.0.0:8000
 ```
 
-### Production Server
-```bash
-# Collect static files
-python manage.py collectstatic --noinput
-
-# Run with Gunicorn
-gunicorn pycharmtut.wsgi:application --bind 0.0.0.0:8000
-
-# Run with uWSGI
-uwsgi --http :8000 --module pycharmtut.wsgi
-```
-
-### Background Tasks (Optional)
-```bash
-# Run Celery worker
-celery -A pycharmtut worker --loglevel=info
-
-# Run Celery beat (for scheduled tasks)
-celery -A pycharmtut beat --loglevel=info
-```
-
 ## Testing
 
-### Run All Tests
+### Automated Testing (Recommended)
+```bash
+# Run all tests with one command
+./test.sh
+```
+
+### Manual Testing
 ```bash
 # Run all tests
 python manage.py test
 
-# Run with coverage
-coverage run --source='.' manage.py test
-coverage report
-coverage html
-```
-
-### Run Specific Test Suites
-```bash
-# Run unit tests
+# Run specific test suites
 python manage.py test tests.unit
-
-# Run integration tests
 python manage.py test tests.integration
-
-# Run cross-integration tests
 python manage.py test tests.cross_integration
-```
-
-### Run Tests with Pytest
-```bash
-# Install pytest
-pip install pytest pytest-django
-
-# Run tests with pytest
-pytest
-
-# Run with verbose output
-pytest -v
-
-# Run specific test file
-pytest tests/unit/test_models.py -v
 ```
 
 ## Development Setup
 
-### 1. Code Quality Tools
+### Code Quality Tools
 ```bash
 # Install development dependencies
 pip install -r requirements-dev.txt
@@ -237,24 +172,9 @@ pip install -r requirements-dev.txt
 flake8 .
 black .
 isort .
-
-# Run type checking
-mypy .
 ```
 
-### 2. Pre-commit Hooks
-```bash
-# Install pre-commit
-pip install pre-commit
-
-# Install hooks
-pre-commit install
-
-# Run hooks manually
-pre-commit run --all-files
-```
-
-### 3. IDE Configuration
+### IDE Configuration
 For PyCharm/IntelliJ:
 - Set Python interpreter to virtual environment
 - Configure Django support
@@ -264,60 +184,6 @@ For VS Code:
 - Install Python extension
 - Install Django extension
 - Configure settings.json for Django support
-
-## Production Deployment
-
-### 1. Docker Deployment
-```bash
-# Build Docker image
-docker build -t waterplantapp .
-
-# Run container
-docker run -d -p 8000:8000 --env-file .env waterplantapp
-```
-
-### 2. Nginx Configuration
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location /static/ {
-        alias /path/to/static/files/;
-    }
-
-    location /media/ {
-        alias /path/to/media/files/;
-    }
-}
-```
-
-### 3. Systemd Service
-```ini
-[Unit]
-Description=WaterPlantApp Django Application
-After=network.target
-
-[Service]
-Type=exec
-User=www-data
-Group=www-data
-WorkingDirectory=/path/to/WaterPlantApp
-Environment=PATH=/path/to/WaterPlantApp/venv/bin
-ExecStart=/path/to/WaterPlantApp/venv/bin/gunicorn pycharmtut.wsgi:application --bind 127.0.0.1:8000
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-```
 
 ## Troubleshooting
 
@@ -333,29 +199,20 @@ python manage.py flush
 python manage.py migrate
 ```
 
-#### 2. Static Files Not Loading
+#### 2. Missing Dependencies
 ```bash
-# Collect static files
-python manage.py collectstatic --noinput
-
-# Check STATIC_ROOT setting
-python manage.py shell
->>> from django.conf import settings
->>> print(settings.STATIC_ROOT)
+# Run setup script to install all dependencies
+./setup.sh
 ```
 
 #### 3. Permission Errors
 ```bash
-# Fix file permissions
-chmod -R 755 /path/to/WaterPlantApp
-chown -R www-data:www-data /path/to/WaterPlantApp
+# Make scripts executable
+chmod +x setup.sh start.sh test.sh
 ```
 
 #### 4. Import Errors
 ```bash
-# Check Python path
-python -c "import sys; print(sys.path)"
-
 # Reinstall dependencies
 pip install -r requirements.txt --force-reinstall
 ```
@@ -368,96 +225,13 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 ```
 
-### Logging Configuration
-```python
-# In settings.py
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG',
-            'class': 'logging.FileHandler',
-            'filename': 'debug.log',
-        },
-    },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-    },
-}
-```
-
-## Performance Optimization
-
-### 1. Database Optimization
-- Use database indexes for frequently queried fields
-- Implement database connection pooling
-- Use select_related() and prefetch_related() for queries
-
-### 2. Caching
-- Implement Redis caching for frequently accessed data
-- Use Django's cache framework
-- Cache API responses
-
-### 3. Static Files
-- Use CDN for static file delivery
-- Compress static files
-- Implement browser caching
-
-## Security Considerations
-
-### 1. Environment Variables
-- Never commit `.env` files to version control
-- Use strong, unique secret keys
-- Rotate secrets regularly
-
-### 2. Database Security
-- Use strong database passwords
-- Limit database user permissions
-- Enable SSL for database connections
-
-### 3. API Security
-- Implement rate limiting
-- Use HTTPS in production
-- Validate all input data
-- Implement proper authentication
-
-## Monitoring and Maintenance
-
-### 1. Health Checks
-```bash
-# Check application health
-curl http://localhost:8000/health/
-
-# Check database connectivity
-python manage.py check --database default
-```
-
-### 2. Backup Strategy
-```bash
-# Database backup
-pg_dump waterplantapp > backup_$(date +%Y%m%d_%H%M%S).sql
-
-# Media files backup
-tar -czf media_backup_$(date +%Y%m%d_%H%M%S).tar.gz media/
-```
-
-### 3. Log Monitoring
-- Monitor application logs for errors
-- Set up log rotation
-- Implement log aggregation
-
 ## Support and Documentation
 
 ### Additional Resources
 - [Django Documentation](https://docs.djangoproject.com/)
 - [Django REST Framework Documentation](https://www.django-rest-framework.org/)
-- [WaterPlantOperator Integration Guide](./API_INTEGRATION.md)
-- [Testing Guide](./TESTING_GUIDE.md)
+- [WaterPlantOperator Integration Guide](./WATERPLANTOPERATOR_INTEGRATION.md)
+- [Testing Guide](./HOW_TO_RUN_TESTS.md)
 
 ### Getting Help
 - Check the troubleshooting section above
@@ -465,4 +239,4 @@ tar -czf media_backup_$(date +%Y%m%d_%H%M%S).tar.gz media/
 - Consult the API documentation
 - Contact the development team
 
-This setup guide provides a comprehensive foundation for running WaterPlantApp in both development and production environments. Follow the steps carefully and refer to the troubleshooting section if you encounter any issues.
+This setup guide provides a foundation for running WaterPlantApp in both development and production environments. Follow the steps carefully and refer to the troubleshooting section if you encounter any issues.

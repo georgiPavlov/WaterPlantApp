@@ -1,7 +1,12 @@
 # WaterPlantApp API Documentation
 
 ## Overview
-WaterPlantApp provides a comprehensive REST API for managing water plant automation systems. The API allows WaterPlantOperator devices to communicate with the central server, manage devices, plans, and monitor system status.
+WaterPlantApp provides a REST API for managing water plant automation systems. The API enables WaterPlantOperator devices to communicate with the central server.
+
+## Quick Start
+1. **Setup**: Run `./setup.sh` to install dependencies
+2. **Start**: Run `./start.sh` to start the server
+3. **Test**: Run `./test.sh` to verify everything works
 
 ## Table of Contents
 1. [Authentication](#authentication)
@@ -12,8 +17,7 @@ WaterPlantApp provides a comprehensive REST API for managing water plant automat
 6. [Camera API](#camera-api)
 7. [Health Check API](#health-check-api)
 8. [Error Handling](#error-handling)
-9. [Rate Limiting](#rate-limiting)
-10. [Examples](#examples)
+9. [Examples](#examples)
 
 ## Authentication
 
@@ -754,31 +758,6 @@ All API errors follow a consistent format:
 - `DEVICE_OFFLINE`: Device is not online
 - `PLAN_EXECUTION_ERROR`: Plan execution failed
 
-## Rate Limiting
-
-### Rate Limits
-- **General API**: 1000 requests per hour per user
-- **Device API**: 100 requests per minute per device
-- **Camera API**: 10 requests per minute per device
-- **Health Check**: 60 requests per minute per IP
-
-### Rate Limit Headers
-```http
-X-RateLimit-Limit: 1000
-X-RateLimit-Remaining: 999
-X-RateLimit-Reset: 1640995200
-```
-
-### Rate Limit Exceeded Response
-```json
-{
-  "error": {
-    "code": "RATE_LIMIT_EXCEEDED",
-    "message": "Rate limit exceeded. Try again later.",
-    "retry_after": 3600
-  }
-}
-```
 
 ## Examples
 
@@ -892,4 +871,27 @@ status = client.update_device_status(water_level=80, moisture_level=50)
 print(f"Device status updated: {status}")
 ```
 
-This API documentation provides comprehensive information about all available endpoints, request/response formats, authentication methods, and integration examples for WaterPlantApp.
+## Setup and Testing
+
+### Automated Setup
+```bash
+# Complete setup with one command
+./setup.sh
+
+# Start the server
+./start.sh
+
+# Run all tests
+./test.sh
+```
+
+### Manual Testing
+```bash
+# Test API endpoints
+curl -H "Authorization: Token your_token" http://localhost:8000/api/v1/devices/
+
+# Test health check
+curl http://localhost:8000/api/v1/health/
+```
+
+This API documentation provides essential information about endpoints, authentication, and integration for WaterPlantApp.
