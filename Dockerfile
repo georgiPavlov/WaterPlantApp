@@ -44,3 +44,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
 
 # Default command
 CMD ["python3", "pycharmtut/manage.py", "runserver", "0.0.0.0:8001"]
+
+
